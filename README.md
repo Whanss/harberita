@@ -3,18 +3,6 @@
 
 ---
 
-## 📋 Table of Contents
-1. [Requirements](#requirements)
-2. [Installation & Setup](#installation--setup)
-3. [Database Schema](#database-schema)
-4. [File Structure](#file-structure)
-5. [Configuration](#configuration)
-6. [Fitur-Fitur](#fitur-fitur)
-7. [Deployment](#deployment)
-8. [Troubleshooting](#troubleshooting)
-
----
-
 ## 🔧 Requirements
 
 ### Server Requirements
