@@ -18,4 +18,10 @@ RAM: Minimal 2GB (recommended 4GB)
 Disk Space: 5GB
 OS: Linux/Ubuntu (recommended), macOS, atau Windows dengan WSL2
 ```
+### Laravel Kit
+```
+starter kit : Vue
+authentication provider : Laravel's built-in authentication
+testing framework : Laravel PEST
 
+```
