@@ -33,7 +33,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirect back to intended URL, fallback to home (not dashboard)
+        return redirect()->intended(route('home'));
     }
 
     /**

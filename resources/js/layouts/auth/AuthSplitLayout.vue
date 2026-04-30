@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 const page = usePage();
-const name = page.props.name;
 const quote = page.props.quote;
 
 defineProps<{
@@ -16,9 +14,9 @@ defineProps<{
     <div class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
         <div class="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
             <div class="absolute inset-0 bg-zinc-900" />
-            <Link :href="route('home')" class="relative z-20 flex items-center text-lg font-medium">
-                <AppLogoIcon class="mr-2 size-8 fill-current text-white" />
-                {{ name }}
+            <Link :href="route('home')" class="relative z-20 flex items-center gap-1 text-lg font-medium">
+                <span class="font-black text-white">PORTAL</span>
+                <span class="font-black text-red-400">BERITA</span>
             </Link>
             <div v-if="quote" class="relative z-20 mt-auto">
                 <blockquote class="space-y-2">
