@@ -11,12 +11,42 @@ const props = defineProps<{
 }>();
 
 const page = usePage();
-const currentUser = computed(() => (page.props.auth as any)?.user);
+const currentUser = computed(() => (page.props.auth as any)?.reader);
 const { formatRelative, formatDate } = useRelativeTime();
 const readingProgress = useReadingProgress();
 
 const form = useForm({ content: '' });
 const copySuccess = ref(false);
+const commentSent = ref(false);
+const editingCommentId = ref<number | null>(null);
+const editForm = useForm({ content: '' });
+
+const startEdit = (comment: any) => {
+    editingCommentId.value = comment.id;
+    editForm.content = comment.content;
+};
+
+const cancelEdit = () => {
+    editingCommentId.value = null;
+    editForm.reset();
+};
+
+const submitEdit = (commentId: number) => {
+    editForm.put(route('comments.update', commentId), {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingCommentId.value = null;
+            editForm.reset();
+        },
+    });
+};
+
+const deleteComment = (commentId: number) => {
+    if (!confirm('Hapus komentar ini?')) return;
+    useForm({}).delete(route('comments.destroy', commentId), {
+        preserveScroll: true,
+    });
+};
 
 const encodedShareUrl = computed(() => encodeURIComponent(props.shareUrl));
 const encodedTitle = computed(() => encodeURIComponent(props.article.title));
@@ -31,7 +61,11 @@ const shareLinks = computed(() => ({
 const submitComment = () => {
     form.post(route('articles.comments.store', props.article.slug), {
         preserveScroll: true,
-        onSuccess: () => form.reset(),
+        onSuccess: () => {
+            form.reset();
+            commentSent.value = true;
+            setTimeout(() => { commentSent.value = false; }, 5000);
+        },
     });
 };
 
@@ -112,6 +146,18 @@ const getVideoEmbed = (url: string): string | null => {
                     <!-- Featured image -->
                     <div v-if="article.featured_image" class="mb-6 overflow-hidden rounded-xl">
                         <img :src="`/storage/${article.featured_image}`" :alt="article.title" class="w-full object-cover" />
+                    </div>
+
+                    <!-- Divider antara gambar dan video -->
+                    <div v-if="article.featured_image && article.video_url && getVideoEmbed(article.video_url)" class="mb-6 flex items-center gap-3">
+                        <div class="h-px flex-1 bg-gray-200"></div>
+                        <span class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-gray-400">
+                            <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            Video
+                        </span>
+                        <div class="h-px flex-1 bg-gray-200"></div>
                     </div>
 
                     <!-- Video embed -->
@@ -211,6 +257,11 @@ const getVideoEmbed = (url: string): string | null => {
                                 >
                                     {{ form.processing ? 'Mengirim...' : 'Kirim Komentar' }}
                                 </button>
+                                <Transition enter-active-class="transition duration-300" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0">
+                                    <p v-if="commentSent" class="mt-2 text-sm font-semibold text-green-600">
+                                        ✓ Komentar berhasil dikirim.
+                                    </p>
+                                </Transition>
                             </form>
                         </div>
                         <div v-else class="mb-6 rounded-xl border border-dashed border-gray-300 p-5 text-center text-sm text-gray-500">
@@ -224,11 +275,47 @@ const getVideoEmbed = (url: string): string | null => {
                         <div class="space-y-4">
                             <div v-for="comment in article.comments" :key="comment.id" class="flex gap-3 rounded-xl border border-gray-200 bg-white p-4">
                                 <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-600">
-                                    {{ comment.user?.name?.charAt(0) ?? '?' }}
+                                    {{ comment.reader?.name?.charAt(0) ?? '?' }}
                                 </div>
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-900">{{ comment.user?.name ?? 'Anonim' }}</p>
-                                    <p class="mt-1 text-sm text-gray-700">{{ comment.content }}</p>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <p class="text-sm font-semibold text-gray-900">{{ comment.reader?.name ?? 'Anonim' }}</p>
+                                        <!-- Edit/Delete buttons — hanya untuk pemilik komentar -->
+                                        <div v-if="currentUser && currentUser.id === comment.reader_id" class="flex items-center gap-1">
+                                            <button
+                                                @click="startEdit(comment)"
+                                                class="rounded px-2 py-0.5 text-xs text-gray-400 hover:bg-gray-100 hover:text-blue-600 transition-colors"
+                                            >Edit</button>
+                                            <button
+                                                @click="deleteComment(comment.id)"
+                                                class="rounded px-2 py-0.5 text-xs text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-colors"
+                                            >Hapus</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mode edit -->
+                                    <div v-if="editingCommentId === comment.id" class="mt-2">
+                                        <textarea
+                                            v-model="editForm.content"
+                                            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
+                                            rows="3"
+                                        />
+                                        <p v-if="editForm.errors.content" class="mt-1 text-xs text-red-600">{{ editForm.errors.content }}</p>
+                                        <div class="mt-2 flex gap-2">
+                                            <button
+                                                @click="submitEdit(comment.id)"
+                                                :disabled="editForm.processing"
+                                                class="rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+                                            >Simpan</button>
+                                            <button
+                                                @click="cancelEdit"
+                                                class="rounded border border-gray-200 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
+                                            >Batal</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mode tampil -->
+                                    <p v-else class="mt-1 text-sm text-gray-700">{{ comment.content }}</p>
                                     <p class="mt-1 text-xs text-gray-400">{{ formatRelative(comment.created_at) }}</p>
                                 </div>
                             </div>

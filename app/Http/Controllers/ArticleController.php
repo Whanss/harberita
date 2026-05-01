@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\Comment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,7 +27,7 @@ class ArticleController extends Controller
             'journalist:id,name,slug,position,bio',
             'comments' => fn ($query) => $query
                 ->where('status', 'approved')
-                ->with('user:id,name')
+                ->with('reader:id,name')
                 ->latest(),
         ]);
 
@@ -49,6 +50,15 @@ class ArticleController extends Controller
         ]);
     }
 
+    private function sanitizeComment(string $content): string
+    {
+        $content = strip_tags($content);
+        $content = preg_replace('/https?:\/\/\S+/i', '[link diblokir]', $content);
+        $content = preg_replace('/www\.\S+/i', '[link diblokir]', $content);
+        $content = preg_replace('/\b\S+\.(com|net|org|id|io|co|xyz|info|biz|me|tv|cc|ru|cn)\b/i', '[link diblokir]', $content);
+        return trim(preg_replace('/\s+/', ' ', $content) ?? '');
+    }
+
     public function storeComment(Request $request, Article $article): RedirectResponse
     {
         abort_unless($article->status === 'published' && $article->published_at?->isPast(), 404);
@@ -57,9 +67,7 @@ class ArticleController extends Controller
             'content' => ['required', 'string', 'min:5', 'max:1000'],
         ]);
 
-        $contentWithoutHtml = strip_tags($validated['content']);
-        $sanitizedContent = preg_replace('/https?:\/\/\S+|www\.\S+/i', '', $contentWithoutHtml);
-        $sanitizedContent = trim(preg_replace('/\s+/', ' ', (string) $sanitizedContent) ?? '');
+        $sanitizedContent = $this->sanitizeComment($validated['content']);
 
         if (mb_strlen($sanitizedContent) < 5) {
             return back()->withErrors([
@@ -69,11 +77,41 @@ class ArticleController extends Controller
 
         Comment::query()->create([
             'article_id' => $article->id,
-            'user_id' => $request->user()->id,
-            'content' => $sanitizedContent,
-            'status' => 'pending',
+            'reader_id'  => Auth::guard('reader')->id(),
+            'content'    => $sanitizedContent,
+            'status'     => 'approved',
         ]);
 
-        return back()->with('success', 'Komentar berhasil dikirim dan menunggu moderasi admin.');
+        return back()->with('success', 'Komentar berhasil dikirim.');
+    }
+
+    public function updateComment(Request $request, Comment $comment): RedirectResponse
+    {
+        abort_unless($comment->reader_id === Auth::guard('reader')->id(), 403);
+
+        $validated = $request->validate([
+            'content' => ['required', 'string', 'min:5', 'max:1000'],
+        ]);
+
+        $sanitizedContent = $this->sanitizeComment($validated['content']);
+
+        if (mb_strlen($sanitizedContent) < 5) {
+            return back()->withErrors([
+                'content' => 'Komentar tidak boleh hanya berisi URL atau tag HTML.',
+            ]);
+        }
+
+        $comment->update(['content' => $sanitizedContent]);
+
+        return back()->with('success', 'Komentar berhasil diperbarui.');
+    }
+
+    public function destroyComment(Comment $comment): RedirectResponse
+    {
+        abort_unless($comment->reader_id === Auth::guard('reader')->id(), 403);
+
+        $comment->delete();
+
+        return back()->with('success', 'Komentar berhasil dihapus.');
     }
 }

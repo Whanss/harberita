@@ -39,6 +39,12 @@ class LatestArticlesWidget extends BaseWidget
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'published' => 'Dipublikasikan',
+                        'draft'     => 'Draf',
+                        'archived'  => 'Diarsipkan',
+                        default     => $state,
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         'published' => 'success',
                         'draft'     => 'warning',

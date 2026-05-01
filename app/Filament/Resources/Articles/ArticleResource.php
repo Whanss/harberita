@@ -46,29 +46,38 @@ class ArticleResource extends Resource
         return $schema
             ->components([
                 Select::make('category_id')
+                    ->label('Kategori')
                     ->relationship('category', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 Select::make('journalist_id')
+                    ->label('Jurnalis')
                     ->relationship('journalist', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 TextInput::make('title')
+                    ->label('Judul')
                     ->required()
                     ->maxLength(255),
                 Textarea::make('excerpt')
+                    ->label('Ringkasan')
                     ->rows(3)
                     ->maxLength(200),
                 RichEditor::make('content')
+                    ->label('Konten')
                     ->required(),
                 FileUpload::make('featured_image')
+                    ->label('Gambar Utama')
                     ->image()
+                    ->disk('public')
                     ->directory('articles/featured')
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                    ->maxSize(10240),
+                    ->maxSize(10240)
+                    ->visibility('public'),
                 TextInput::make('video_url')
+                    ->label('URL Video')
                     ->maxLength(255)
                     ->helperText('Gunakan URL YouTube atau Vimeo.')
                     ->rule(static function () {
@@ -86,10 +95,11 @@ class ArticleResource extends Resource
                         };
                     }),
                 Select::make('status')
+                    ->label('Status')
                     ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                        'archived' => 'Archived',
+                        'draft'     => 'Draf',
+                        'published' => 'Dipublikasikan',
+                        'archived'  => 'Diarsipkan',
                     ])
                     ->live()
                     ->default('draft')
@@ -100,8 +110,10 @@ class ArticleResource extends Resource
                     })
                     ->required(),
                 DateTimePicker::make('published_at')
+                    ->label('Tanggal Publikasi')
                     ->required(fn (callable $get): bool => $get('status') === 'published'),
                 Toggle::make('is_headline')
+                    ->label('Headline')
                     ->default(false),
             ]);
     }
@@ -112,20 +124,37 @@ class ArticleResource extends Resource
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
+                    ->label('Judul')
                     ->searchable(),
                 TextColumn::make('category.name')
                     ->label('Kategori'),
                 TextColumn::make('journalist.name')
                     ->label('Jurnalis'),
                 TextColumn::make('status')
-                    ->badge(),
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'draft'     => 'Draf',
+                        'published' => 'Dipublikasikan',
+                        'archived'  => 'Diarsipkan',
+                        default     => $state,
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'published' => 'success',
+                        'draft'     => 'warning',
+                        'archived'  => 'gray',
+                        default     => 'gray',
+                    }),
                 IconColumn::make('is_headline')
+                    ->label('Headline')
                     ->boolean(),
                 TextColumn::make('view_count')
+                    ->label('Views')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('published_at')
-                    ->dateTime()
+                    ->label('Tanggal Publikasi')
+                    ->dateTime('d M Y, H:i')
                     ->sortable(),
             ])
             ->filters([

@@ -41,12 +41,15 @@ class CategoryResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required()
                     ->maxLength(255),
                 Textarea::make('description')
+                    ->label('Deskripsi')
                     ->rows(3)
                     ->maxLength(1000),
                 Toggle::make('is_active')
+                    ->label('Aktif')
                     ->default(true)
                     ->required(),
             ]);
@@ -58,15 +61,19 @@ class CategoryResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label('Aktif')
                     ->boolean(),
                 TextColumn::make('articles_count')
                     ->counts('articles')
                     ->label('Jumlah Artikel'),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui')
                     ->since()
                     ->sortable(),
             ])

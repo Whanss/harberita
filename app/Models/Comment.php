@@ -12,7 +12,7 @@ class Comment extends Model
 
     protected $fillable = [
         'article_id',
-        'user_id',
+        'reader_id',
         'content',
         'status',
         'approved_at',
@@ -43,8 +43,8 @@ class Comment extends Model
         return $this->belongsTo(Article::class);
     }
 
-    public function user(): BelongsTo
+    public function reader(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Reader::class);
     }
 }

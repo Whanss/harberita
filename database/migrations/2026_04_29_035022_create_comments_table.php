@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('article_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('reader_id')->constrained('readers')->cascadeOnDelete();
             $table->text('content');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamp('approved_at')->nullable();

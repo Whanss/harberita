@@ -8,8 +8,8 @@ use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -38,28 +38,22 @@ class CommentResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('article_id')
-                    ->relationship('article', 'title')
-                    ->required()
-                    ->searchable()
-                    ->preload(),
-                Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required()
-                    ->searchable()
-                    ->preload(),
+                Placeholder::make('article_title')
+                    ->label('Artikel')
+                    ->content(fn (Comment $record): string => $record->article?->title ?? '-'),
+
+                Placeholder::make('reader_name')
+                    ->label('Pembaca')
+                    ->content(fn (Comment $record): string => $record->reader?->name ?? '-'),
+
                 Textarea::make('content')
-                    ->required()
+                    ->label('Isi Komentar')
                     ->rows(4)
-                    ->maxLength(1000),
-                Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                    ])
-                    ->default('pending')
-                    ->required(),
+                    ->disabled(),
+
+                Placeholder::make('created_at')
+                    ->label('Dikirim pada')
+                    ->content(fn (Comment $record): string => $record->created_at?->format('d M Y, H:i') ?? '-'),
             ]);
     }
 
@@ -69,25 +63,39 @@ class CommentResource extends Resource
             ->recordTitleAttribute('content')
             ->columns([
                 TextColumn::make('content')
-                    ->limit(50)
+                    ->label('Komentar')
+                    ->limit(60)
                     ->searchable(),
                 TextColumn::make('article.title')
                     ->label('Artikel')
+                    ->limit(40)
                     ->searchable(),
-                TextColumn::make('user.name')
-                    ->label('User')
+                TextColumn::make('reader.name')
+                    ->label('Pembaca')
                     ->searchable(),
                 TextColumn::make('status')
-                    ->badge(),
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'approved' => 'Disetujui',
+                        'pending'  => 'Menunggu',
+                        'rejected' => 'Ditolak',
+                        default    => $state,
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'approved' => 'success',
+                        'pending'  => 'warning',
+                        'rejected' => 'danger',
+                        default    => 'gray',
+                    }),
                 TextColumn::make('created_at')
+                    ->label('Dikirim')
                     ->since()
                     ->sortable(),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->recordActions([
-                EditAction::make(),
+                ViewAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import { useScrolled } from '@/composables/useIntersectionObserver';
 import { computed, ref } from 'vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Link, useForm, usePage, router } from '@inertiajs/vue3';
 
 const page = usePage();
 const categories = computed(() => (page.props.categories as any[]) ?? []);
+const currentUser = computed(() => (page.props.auth as any)?.reader ?? null);
 const mobileMenuOpen = ref(false);
 const scrolled = useScrolled(20);
+
+const currentUrl = computed(() => page.url);
+
+const isHome = computed(() => currentUrl.value === '/' || currentUrl.value.startsWith('/?'));
+const isArchive = computed(() => currentUrl.value.startsWith('/arsip'));
+const activeCategorySlug = computed(() => {
+    const match = currentUrl.value.match(/^\/kategori\/([^/?]+)/);
+    return match ? match[1] : null;
+});
 
 const subscriptionForm = useForm({ email: '' });
 const submitSubscription = () => {
@@ -14,6 +24,10 @@ const submitSubscription = () => {
         preserveScroll: true,
         onSuccess: () => subscriptionForm.reset(),
     });
+};
+
+const logout = () => {
+    router.post(route('logout'));
 };
 
 const currentYear = new Date().getFullYear();
@@ -80,6 +94,31 @@ const currentYear = new Date().getFullYear();
                         </a>
                         <div class="h-5 w-px bg-ink-200"></div>
                         <Link :href="route('contact.index')" class="text-xs font-medium text-ink-500 transition-colors hover:text-brand-600">Kontak</Link>
+
+                        <!-- User auth area -->
+                        <div class="h-5 w-px bg-ink-200"></div>
+                        <template v-if="currentUser">
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">
+                                    {{ currentUser.name?.charAt(0).toUpperCase() }}
+                                </span>
+                                <span class="text-xs font-medium text-ink-700">{{ currentUser.name }}</span>
+                                <button
+                                    @click="logout"
+                                    class="text-xs font-medium text-ink-400 transition-colors hover:text-red-600"
+                                    title="Logout"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <Link :href="route('login')" class="rounded bg-brand-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-brand-700">
+                                Masuk
+                            </Link>
+                        </template>
                     </div>
 
                     <!-- Mobile menu button -->
@@ -105,12 +144,15 @@ const currentYear = new Date().getFullYear();
                     <!-- Home link -->
                     <Link
                         :href="route('home')"
-                        class="flex items-center gap-1.5 border-r border-ink-700 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-brand-600"
+                        class="relative flex items-center gap-1.5 border-r border-ink-700 px-4 py-3 text-xs font-black uppercase tracking-widest transition-colors hover:text-white"
+                        :class="isHome ? 'text-white' : 'text-ink-400 hover:bg-ink-800'"
                     >
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
                         Home
+                        <!-- Active indicator -->
+                        <span v-if="isHome" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                     </Link>
 
                     <!-- Category links -->
@@ -119,16 +161,28 @@ const currentYear = new Date().getFullYear();
                             v-for="cat in categories"
                             :key="cat.id"
                             :href="route('categories.show', cat.slug)"
-                            class="relative px-4 py-3 text-xs font-bold uppercase tracking-wider text-ink-300 transition-all hover:bg-brand-600 hover:text-white"
+                            class="relative px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all hover:text-white"
+                            :class="activeCategorySlug === cat.slug ? 'text-white' : 'text-ink-400 hover:bg-ink-800'"
                         >
                             {{ cat.name }}
+                            <!-- Active indicator -->
+                            <span v-if="activeCategorySlug === cat.slug" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                         </Link>
                     </div>
 
                     <!-- Right: Archive -->
                     <div class="ml-auto hidden items-center gap-0 md:flex">
-                        <Link :href="route('archive.index')" class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-ink-300 transition-colors hover:bg-brand-600 hover:text-white">
+                        <Link
+                            :href="route('archive.index')"
+                            class="relative flex items-center gap-1.5 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-colors hover:text-white"
+                            :class="isArchive ? 'text-white' : 'text-ink-400 hover:bg-ink-800'"
+                        >
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
                             Arsip
+                            <!-- Active indicator -->
+                            <span v-if="isArchive" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                         </Link>
                     </div>
                 </div>
@@ -149,15 +203,28 @@ const currentYear = new Date().getFullYear();
                             v-for="cat in categories"
                             :key="cat.id"
                             :href="route('categories.show', cat.slug)"
-                            class="bg-ink-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-ink-300 transition-colors hover:bg-brand-600 hover:text-white"
+                            class="relative bg-ink-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-ink-800 hover:text-white"
+                            :class="activeCategorySlug === cat.slug ? 'text-white' : 'text-ink-400'"
                             @click="mobileMenuOpen = false"
                         >
                             {{ cat.name }}
+                            <span v-if="activeCategorySlug === cat.slug" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                         </Link>
                     </div>
                     <div class="flex gap-px bg-ink-700 p-px">
-                        <Link :href="route('archive.index')" class="flex-1 bg-ink-900 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-ink-300 hover:bg-brand-600 hover:text-white" @click="mobileMenuOpen = false">Arsip</Link>
-                        <Link :href="route('contact.index')" class="flex-1 bg-ink-900 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-ink-300 hover:bg-brand-600 hover:text-white" @click="mobileMenuOpen = false">Kontak</Link>
+                        <Link
+                            :href="route('archive.index')"
+                            class="relative flex flex-1 items-center justify-center gap-1.5 bg-ink-900 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider transition-colors hover:bg-ink-800 hover:text-white"
+                            :class="isArchive ? 'text-white' : 'text-ink-400'"
+                            @click="mobileMenuOpen = false"
+                        >
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                            Arsip
+                            <span v-if="isArchive" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
+                        </Link>
+                        <Link :href="route('contact.index')" class="flex-1 bg-ink-900 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-ink-400 transition-colors hover:bg-ink-800 hover:text-white" @click="mobileMenuOpen = false">Kontak</Link>
                     </div>
                 </div>
             </Transition>

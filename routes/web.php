@@ -13,8 +13,16 @@ use App\Http\Controllers\ContactController;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/artikel/{article}', [ArticleController::class, 'show'])->name('articles.show');
 Route::post('/artikel/{article}/komentar', [ArticleController::class, 'storeComment'])
-    ->middleware('auth')
+    ->middleware('auth:reader')
     ->name('articles.comments.store');
+
+Route::put('/komentar/{comment}', [ArticleController::class, 'updateComment'])
+    ->middleware('auth:reader')
+    ->name('comments.update');
+
+Route::delete('/komentar/{comment}', [ArticleController::class, 'destroyComment'])
+    ->middleware('auth:reader')
+    ->name('comments.destroy');
 Route::get('/kategori/{category}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/pencarian', [SearchController::class, 'index'])->name('search.index');
 Route::get('/arsip', [ArchiveController::class, 'index'])->name('archive.index');

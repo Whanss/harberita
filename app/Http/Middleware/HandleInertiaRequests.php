@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Category;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -45,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
+                'reader' => Auth::guard('reader')->user(),
             ],
             'categories' => fn () => Category::query()
                 ->where('is_active', true)

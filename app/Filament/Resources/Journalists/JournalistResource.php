@@ -43,22 +43,28 @@ class JournalistResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('position')
+                    ->label('Jabatan')
                     ->maxLength(255),
                 Textarea::make('bio')
+                    ->label('Biografi')
                     ->rows(4)
                     ->maxLength(500),
                 FileUpload::make('photo_path')
                     ->label('Foto')
                     ->image()
+                    ->disk('public')
                     ->directory('journalists/photos')
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(5120)
+                    ->visibility('public')
                     ->avatar()
                     ->imageEditor(),
                 Toggle::make('is_active')
+                    ->label('Aktif')
                     ->default(true)
                     ->required(),
             ]);
@@ -70,14 +76,19 @@ class JournalistResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
                 TextColumn::make('position')
+                    ->label('Jabatan')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label('Aktif')
                     ->boolean(),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui')
                     ->since()
                     ->sortable(),
             ])

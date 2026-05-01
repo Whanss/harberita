@@ -2,22 +2,20 @@
 
 namespace App\Models;
 
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements FilamentUser
+class Reader extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<\Database\Factories\ReaderFactory> */
     use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'is_admin',
     ];
 
     protected $hidden = [
@@ -30,15 +28,11 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
-            'is_admin'          => 'boolean',
         ];
     }
 
-    /**
-     * Hanya user dengan is_admin = true yang bisa akses Filament.
-     */
-    public function canAccessPanel(Panel $panel): bool
+    public function comments(): HasMany
     {
-        return $this->is_admin === true;
+        return $this->hasMany(Comment::class);
     }
 }

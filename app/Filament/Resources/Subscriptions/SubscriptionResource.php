@@ -41,14 +41,18 @@ class SubscriptionResource extends Resource
         return $schema
             ->components([
                 TextInput::make('email')
+                    ->label('Email')
                     ->required()
                     ->email()
                     ->maxLength(255),
                 Toggle::make('is_active')
+                    ->label('Aktif')
                     ->default(true)
                     ->required(),
-                DateTimePicker::make('subscribed_at'),
-                DateTimePicker::make('unsubscribed_at'),
+                DateTimePicker::make('subscribed_at')
+                    ->label('Tanggal Berlangganan'),
+                DateTimePicker::make('unsubscribed_at')
+                    ->label('Tanggal Berhenti'),
             ]);
     }
 
@@ -58,14 +62,18 @@ class SubscriptionResource extends Resource
             ->recordTitleAttribute('email')
             ->columns([
                 TextColumn::make('email')
+                    ->label('Email')
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label('Aktif')
                     ->boolean(),
                 TextColumn::make('subscribed_at')
-                    ->dateTime()
+                    ->label('Berlangganan Sejak')
+                    ->dateTime('d M Y, H:i')
                     ->sortable(),
                 TextColumn::make('unsubscribed_at')
-                    ->dateTime()
+                    ->label('Berhenti Pada')
+                    ->dateTime('d M Y, H:i')
                     ->sortable(),
             ])
             ->filters([

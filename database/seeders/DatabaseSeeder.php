@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Journalist;
+use App\Models\Reader;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -20,10 +21,11 @@ class DatabaseSeeder extends Seeder
             'name'     => 'Admin Portal',
             'email'    => 'admin@portalberita.com',
             'password' => Hash::make('password'),
+            'is_admin' => true,
         ]);
 
-        // Regular users untuk komentar
-        $users = User::factory(5)->create();
+        // Regular readers untuk komentar
+        $readers = Reader::factory(5)->create();
 
         // Kategori
         $categories = collect([
@@ -115,12 +117,12 @@ class DatabaseSeeder extends Seeder
         }
 
         // Komentar
-        $allArticles->random(10)->each(function (Article $article) use ($users) {
+        $allArticles->random(10)->each(function (Article $article) use ($readers) {
             $count = rand(2, 6);
             for ($i = 0; $i < $count; $i++) {
                 Comment::create([
                     'article_id' => $article->id,
-                    'user_id'    => $users->random()->id,
+                    'reader_id'  => $readers->random()->id,
                     'content'    => collect([
                         'Artikel yang sangat informatif dan bermanfaat!',
                         'Terima kasih atas liputannya, sangat membantu.',
