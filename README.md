@@ -1,797 +1,562 @@
-# 📰 Dokumentasi Setup Portal Berita
-**Laravel + MySQL + Vue.js 3 + Tailwind + Filament**
+# Hasberita.id — Portal Berita
+
+Portal berita modern berbasis Laravel 12 + Vue 3 + Inertia.js dengan panel admin Filament.
 
 ---
 
-## 📋 Table of Contents
-1. [Requirements](#requirements)
-2. [Installation & Setup](#installation--setup)
-3. [Database Schema](#database-schema)
-4. [File Structure](#file-structure)
-5. [Configuration](#configuration)
-6. [Fitur-Fitur](#fitur-fitur)
-7. [Deployment](#deployment)
-8. [Troubleshooting](#troubleshooting)
+## Tech Stack
+
+| Layer | Teknologi |
+|---|---|
+| Backend | Laravel 12, PHP 8.2+ |
+| Frontend | Vue 3, Inertia.js, TypeScript |
+| Styling | Tailwind CSS v3 |
+| Admin Panel | Filament v5 |
+| Database | MySQL (XAMPP) |
+| Email | Resend API |
+| Build Tool | Vite |
+| Queue | Database Queue |
 
 ---
 
-## 🔧 Requirements
+## Fitur
 
-### Server Requirements
-- **PHP:** 8.2 atau lebih tinggi
-- **MySQL:** 8.0 atau PostgreSQL 10+
-- **Node.js:** 18+ (untuk frontend build)
-- **Composer:** Latest version
-- **Git:** Untuk version control
-
-### System Requirements
-```
-RAM: Minimal 2GB (recommended 4GB)
-Disk Space: 5GB
-OS: Linux/Ubuntu (recommended), macOS, atau Windows dengan WSL2
-```
+- Berita Utama / Headline dengan hero layout
+- Kategori berita (20 kategori)
+- Pencarian berita
+- Berita terpopuler & terbaru
+- Video embed (YouTube / Vimeo)
+- Komentar pembaca
+- Bagikan ke media sosial
+- Langganan newsletter via email
+- Arsip berita dengan filter
+- Profil jurnalis
+- Halaman kontak redaksi
+- Panel admin Filament (`/admin`)
+- Notifikasi email ke subscriber saat artikel dipublikasikan
 
 ---
 
-## 🚀 Installation & Setup
+## Instalasi Lokal (XAMPP)
 
-### Step 1: Create Project
+### Prasyarat
+
+- [XAMPP](https://www.apachefriends.org/) dengan PHP 8.2+ dan MySQL
+- [Composer](https://getcomposer.org/)
+- [Node.js](https://nodejs.org/) v18+
+- Git
+
+### 1. Clone Repository
+
 ```bash
-composer create-project laravel/laravel portal-berita
-cd portal-berita
+git clone https://github.com/Whanss/hasberita.git
+cd hasberita
 ```
 
-### Step 2: Install Dependencies
+### 2. Install Dependensi PHP
 
-**Composer Packages:**
 ```bash
-# Core packages
-composer require filament/filament
-composer require spatie/laravel-medialibrary
-composer require spatie/laravel-slugs
-composer require artesaos/seotools
-composer require laravel/scout
-composer require pusher/pusher-php-server
-composer require intervention/image
-composer require laravel/sanctum
-composer require laravel/breeze
-
-# Optional packages
-composer require spatie/laravel-permission
-composer require spatie/laravel-tags
-composer require laravel/telescope --dev
+composer install
 ```
 
-**NPM Packages:**
+### 3. Install Dependensi Node
+
 ```bash
 npm install
-npm install vue@3
-npm install tailwindcss postcss autoprefixer
-npm install axios
-npm install @vueuse/core
-npm install sweetalert2
-npm install swiper
-npm install marked
 ```
 
-### Step 3: Environment Setup
+### 4. Konfigurasi Environment
 
-**Copy .env file:**
+Salin file `.env.example` menjadi `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Generate application key:
+
+```bash
+php artisan key:generate
+```
+
+### 5. Konfigurasi Database
+
+Buka **phpMyAdmin** (`http://localhost/phpmyadmin`) dan buat database baru:
+
+```sql
+CREATE DATABASE portalberita CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Edit file `.env`, sesuaikan bagian database:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=portalberita
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> Jika XAMPP MySQL kamu menggunakan password, isi `DB_PASSWORD` sesuai.
+
+### 6. Konfigurasi Email (Resend)
+
+Daftar di [resend.com](https://resend.com) dan dapatkan API key. Edit `.env`:
+
+```env
+MAIL_MAILER=resend
+MAIL_FROM_ADDRESS="noreply@hasberita.id"
+MAIL_FROM_NAME="Hasberita.id"
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+```
+
+> Untuk development, bisa ganti `MAIL_MAILER=log` agar email tidak benar-benar terkirim, hanya masuk ke `storage/logs/laravel.log`.
+
+### 7. Konfigurasi Queue
+
+Untuk development, queue sudah dikonfigurasi menggunakan database:
+
+```env
+QUEUE_CONNECTION=database
+```
+
+### 8. Jalankan Migrasi & Seeder
+
+```bash
+php artisan migrate
+php artisan db:seed --class=AdminSeeder
+php artisan db:seed --class=ArticleSeeder
+```
+
+Atau sekaligus:
+
+```bash
+php artisan migrate --seed
+```
+
+### 9. Buat Storage Link
+
+```bash
+php artisan storage:link
+```
+
+### 10. Build Frontend
+
+Untuk development (hot reload):
+
+```bash
+npm run dev
+```
+
+Untuk production build:
+
+```bash
+npm run build
+```
+
+### 11. Jalankan Server
+
+```bash
+php artisan serve
+```
+
+Buka browser: `http://127.0.0.1:8000`
+
+Panel admin: `http://127.0.0.1:8000/admin`
+
+### 12. Jalankan Queue Worker (opsional, untuk email)
+
+Buka terminal baru:
+
+```bash
+php artisan queue:work
+```
+
+---
+
+## Akun Default
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@gmail.com | admin123 |
+
+---
+
+## Struktur Direktori Penting
+
+```
+app/
+├── Filament/           # Panel admin (Resources, Pages, Widgets)
+├── Http/
+│   ├── Controllers/    # Controller portal & auth
+│   └── Middleware/     # HandleInertiaRequests
+├── Mail/               # Mailable classes (email)
+├── Models/             # Eloquent models
+└── Providers/          # AppServiceProvider, AdminPanelProvider
+
+resources/
+├── js/
+│   ├── layouts/        # PortalLayout, AuthLayout
+│   ├── pages/
+│   │   └── Portal/     # Halaman portal (Home, ArticleShow, dll)
+│   └── components/     # Komponen Vue
+└── views/
+    ├── app.blade.php   # Root template Inertia
+    └── emails/         # Template email
+
+database/
+├── migrations/         # Skema database
+└── seeders/
+    ├── AdminSeeder.php     # Seed user admin
+    └── ArticleSeeder.php   # Seed 20 kategori + 1 artikel per kategori
+```
+
+---
+
+## Deployment ke Production
+
+### Prasyarat Server
+
+- PHP 8.2+ dengan ekstensi: `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `fileinfo`, `gd`
+- MySQL 8.0+
+- Node.js 18+ (untuk build, tidak perlu di server production)
+- Nginx atau Apache
+- Composer
+- Supervisor (untuk queue worker)
+
+---
+
+### Langkah Deployment
+
+#### 1. Upload File ke Server
+
+Gunakan Git:
+
+```bash
+git clone https://github.com/Whanss/hasberita.git /var/www/hasberita
+cd /var/www/hasberita
+```
+
+Atau upload via FTP/SFTP ke direktori web server.
+
+#### 2. Install Dependensi (tanpa dev)
+
+```bash
+composer install --optimize-autoloader --no-dev
+```
+
+#### 3. Konfigurasi `.env` Production
+
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-**Edit .env file:**
+Edit `.env` untuk production:
+
 ```env
-APP_NAME="Portal Berita"
-APP_URL=http://localhost:8000
+APP_NAME="Hasberita.id"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://hasberita.id
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=portal_berita
-DB_USERNAME=root
-DB_PASSWORD=
+DB_DATABASE=nama_database_production
+DB_USERNAME=user_db
+DB_PASSWORD=password_db_kuat
 
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=your_username
-MAIL_PASSWORD=your_password
-MAIL_FROM_ADDRESS=noreply@portalberita.com
+QUEUE_CONNECTION=database
 
-PUSHER_APP_ID=
-PUSHER_APP_KEY=
-PUSHER_APP_SECRET=
-PUSHER_HOST=
-PUSHER_PORT=443
-PUSHER_SCHEME=https
-PUSHER_APP_CLUSTER=mt1
+MAIL_MAILER=resend
+MAIL_FROM_ADDRESS="noreply@hasberita.id"
+MAIL_FROM_NAME="Hasberita.id"
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+
+FILESYSTEM_DISK=public
+SESSION_DRIVER=file
+CACHE_STORE=database
 ```
 
-### Step 4: Database Setup
+#### 4. Migrasi Database
 
-**Create Database:**
 ```bash
-mysql -u root -p
-CREATE DATABASE portal_berita;
-EXIT;
+php artisan migrate --force
+php artisan db:seed --class=AdminSeeder --force
 ```
 
-**Run Migrations:**
-```bash
-php artisan migrate
-```
+#### 5. Build Frontend
 
-**Seed Sample Data (optional):**
-```bash
-php artisan tinker
-# atau buat seeder tersendiri
-```
-
-### Step 5: Filament Setup
+Lakukan di lokal atau di server (jika Node.js tersedia):
 
 ```bash
-php artisan filament:install --panels=admin
-php artisan make:filament-user
-```
-
-### Step 6: Frontend Build
-
-```bash
-npm run dev
-# atau untuk production:
+npm install
 npm run build
 ```
 
-### Step 7: Run Application
+Upload folder `public/build/` ke server jika build dilakukan lokal.
+
+#### 6. Storage Link & Cache
 
 ```bash
-php artisan serve
-# Akses: http://localhost:8000
-# Admin Panel: http://localhost:8000/admin
+php artisan storage:link
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan icons:cache
+php artisan filament:cache-components
 ```
 
----
+#### 7. Set Permission
 
-## 🗄️ Database Schema
-
-### Table: users
-```sql
-CREATE TABLE users (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    email_verified_at TIMESTAMP NULL,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'editor', 'author', 'user') DEFAULT 'user',
-    is_active BOOLEAN DEFAULT TRUE,
-    avatar_url VARCHAR(255) NULL,
-    bio TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+```bash
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
 ```
 
-### Table: categories
-```sql
-CREATE TABLE categories (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    description TEXT NULL,
-    icon VARCHAR(255) NULL,
-    color VARCHAR(7) NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
+#### 8. Konfigurasi Nginx
 
-### Table: articles
-```sql
-CREATE TABLE articles (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    content LONGTEXT NOT NULL,
-    excerpt VARCHAR(500) NULL,
-    featured_image_url VARCHAR(255) NULL,
-    category_id BIGINT UNSIGNED,
-    author_id BIGINT UNSIGNED NOT NULL,
-    status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
-    is_featured BOOLEAN DEFAULT FALSE,
-    is_trending BOOLEAN DEFAULT FALSE,
-    views_count INT DEFAULT 0,
-    published_at TIMESTAMP NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
-    FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX (slug),
-    INDEX (status),
-    INDEX (published_at),
-    FULLTEXT INDEX ft_search (title, content, excerpt)
-);
-```
+Contoh konfigurasi Nginx untuk domain `hasberita.id`:
 
-### Table: comments
-```sql
-CREATE TABLE comments (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    article_id BIGINT UNSIGNED NOT NULL,
-    user_id BIGINT UNSIGNED,
-    parent_id BIGINT UNSIGNED NULL,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    is_approved BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE,
-    INDEX (article_id)
-);
-```
+```nginx
+server {
+    listen 80;
+    server_name hasberita.id www.hasberita.id;
+    root /var/www/hasberita/public;
 
-### Table: media
-```sql
-CREATE TABLE media (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    model_type VARCHAR(255) NOT NULL,
-    model_id BIGINT UNSIGNED NOT NULL,
-    collection_name VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
-    mime_type VARCHAR(255),
-    disk VARCHAR(255),
-    size INT,
-    conversions_disk VARCHAR(255),
-    responsive_images JSON,
-    manipulations JSON,
-    custom_properties JSON,
-    generated_conversions JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX (model_type, model_id)
-);
-```
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
 
-### Table: subscriptions
-```sql
-CREATE TABLE subscriptions (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    name VARCHAR(255),
-    is_active BOOLEAN DEFAULT TRUE,
-    frequency ENUM('monthly') DEFAULT 'monthly',
-    categories JSON NULL,
-    verified_at TIMESTAMP NULL,
-    token VARCHAR(255) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
+    index index.php;
 
-### Table: article_views
-```sql
-CREATE TABLE article_views (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    article_id BIGINT UNSIGNED NOT NULL,
-    user_ip VARCHAR(45),
-    user_agent VARCHAR(500),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-    INDEX (article_id, created_at)
-);
-```
+    charset utf-8;
 
-### Table: social_shares
-```sql
-CREATE TABLE social_shares (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    article_id BIGINT UNSIGNED NOT NULL,
-    platform ENUM('facebook', 'twitter', 'whatsapp', 'telegram', 'linkedin') NOT NULL,
-    share_count INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-    UNIQUE KEY (article_id, platform)
-);
-```
-
----
-
-## 📁 File Structure
-
-```
-portal-berita/
-├── app/
-│   ├── Models/
-│   │   ├── User.php
-│   │   ├── Category.php
-│   │   ├── Article.php
-│   │   ├── Comment.php
-│   │   └── Subscription.php
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── ArticleController.php
-│   │   │   ├── CategoryController.php
-│   │   │   ├── CommentController.php
-│   │   │   └── SubscriptionController.php
-│   │   └── Middleware/
-│   ├── Filament/
-│   │   └── Resources/
-│   │       ├── ArticleResource.php
-│   │       ├── CategoryResource.php
-│   │       ├── CommentResource.php
-│   │       └── UserResource.php
-│   └── Mail/
-│       ├── NewsletterMail.php
-│       └── ArticlePublishedMail.php
-├── database/
-│   ├── migrations/
-│   ├── seeders/
-│   │   ├── UserSeeder.php
-│   │   ├── CategorySeeder.php
-│   │   └── ArticleSeeder.php
-├── resources/
-│   ├── views/
-│   │   ├── layouts/
-│   │   │   └── app.blade.php
-│   │   ├── components/
-│   │   │   ├── navbar.blade.php
-│   │   │   ├── sidebar.blade.php
-│   │   │   └── footer.blade.php
-│   │   ├── articles/
-│   │   │   ├── index.blade.php
-│   │   │   ├── show.blade.php
-│   │   │   └── search.blade.php
-│   │   └── pages/
-│   │       ├── home.blade.php
-│   │       └── contact.blade.php
-│   └── js/
-│       ├── app.js
-│       ├── bootstrap.js
-│       └── components/
-│           ├── ArticleCard.vue
-│           ├── ArticleDetail.vue
-│           ├── CommentSection.vue
-│           └── SearchBar.vue
-├── routes/
-│   ├── web.php
-│   ├── api.php
-│   └── auth.php
-├── public/
-│   ├── uploads/
-│   │   ├── articles/
-│   │   ├── authors/
-│   │   └── categories/
-│   └── assets/
-├── storage/
-│   └── app/
-│       └── public/
-├── config/
-│   ├── filament.php
-│   ├── scout.php
-│   └── media-library.php
-└── docker-compose.yml (optional)
-```
-
----
-
-## ⚙️ Configuration
-
-### 1. Tailwind CSS Setup
-
-**tailwind.config.js:**
-```javascript
-export default {
-  content: [
-    "./resources/**/*.blade.php",
-    "./resources/**/*.js",
-    "./resources/**/*.vue",
-    "./node_modules/flowbite/**/*.js"
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1F2937',
-        secondary: '#6366F1',
-        accent: '#F97316',
-      }
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
     }
-  },
-  plugins: [
-    require('flowbite/plugin')
-  ]
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
 }
 ```
 
-### 2. Vue Configuration
+Aktifkan HTTPS dengan Certbot:
 
-**resources/js/app.js:**
-```javascript
-import './bootstrap';
-import { createApp } from 'vue';
-import { createPinia } from 'pinia';
-
-// Import components
-import ArticleCard from './components/ArticleCard.vue';
-import ArticleDetail from './components/ArticleDetail.vue';
-import CommentSection from './components/CommentSection.vue';
-import SearchBar from './components/SearchBar.vue';
-
-const app = createApp({});
-const pinia = createPinia();
-
-app.use(pinia);
-
-app.component('ArticleCard', ArticleCard);
-app.component('ArticleDetail', ArticleDetail);
-app.component('CommentSection', CommentSection);
-app.component('SearchBar', SearchBar);
-
-app.mount('#app');
-```
-
-### 3. Filament Configuration
-
-**config/filament.php:**
-```php
-return [
-    'brand' => 'Portal Berita Admin',
-    'dark_mode' => true,
-    'locale' => 'id',
-    'panels' => [
-        'admin' => [
-            'path' => 'admin',
-            'auth' => [
-                'guard' => 'web',
-            ],
-            'pages' => [
-                'dashboard' => \App\Filament\Pages\Dashboard::class,
-            ],
-            'resources' => [
-                \App\Filament\Resources\ArticleResource::class,
-                \App\Filament\Resources\CategoryResource::class,
-                \App\Filament\Resources\CommentResource::class,
-                \App\Filament\Resources\UserResource::class,
-            ],
-        ],
-    ],
-];
-```
-
-### 4. Scout Configuration (Search)
-
-**config/scout.php:**
-```php
-return [
-    'driver' => env('SCOUT_DRIVER', 'database'),
-    
-    'meilisearch' => [
-        'host' => env('MEILISEARCH_HOST', 'localhost:7700'),
-        'key' => env('MEILISEARCH_KEY', null),
-    ],
-];
-```
-
----
-
-## ✨ Fitur-Fitur
-
-### 1. Berita Utama (Featured Articles)
-- Admin bisa set artikel sebagai featured
-- Ditampilkan di homepage dengan banner besar
-- Database query: `where('is_featured', true)->where('status', 'published')`
-
-### 2. Kategori Berita
-- Multiple categories untuk setiap artikel
-- Filter berita berdasarkan kategori
-- Breadcrumb navigation
-
-### 3. Pencarian Berita
-- Full-text search dengan MySQL/Meilisearch
-- Filter by category, date, author
-- Search suggestions/autocomplete
-
-### 4. Berita Terpopuler
-- Track views per artikel (article_views table)
-- Sort by views_count
-- Update trending status daily via cron job
-
-### 5. Berita Terbaru
-- Order by published_at DESC
-- Pagination (20 items per page)
-- Load more functionality
-
-### 6. Galeri Foto
-- Menggunakan Spatie Media Library
-- Multiple images per artikel
-- Image optimization & thumbnail generation
-- Lightbox gallery view
-
-### 7. Video Berita
-- Embed YouTube/Vimeo links
-- Stored in articles table (video_url field)
-- Responsive iframe embed
-
-### 8. Komentar
-- Nested comments (reply to comments)
-- Moderation system (approve/reject)
-- Spam prevention
-- User & guest comments
-
-### 9. Share Social Media
-- Facebook, Twitter, WhatsApp, Telegram, LinkedIn
-- Share buttons di artikel
-- Track share count per platform
-
-### 10. Langganan Email
-- Subscribe dengan email
-- Frequency options ( monthly)
-- Email verification
-- Newsletter automation dengan Laravel Queue
-
-### 11. Arsip Berita
-- Filter by date range
-- Sitemap untuk SEO
-- Soft delete untuk deleted articles
-
-### 12. Profil Penulis
-- Author page dengan articles list
-- Author bio & avatar
-- Follow author functionality (optional)
-
-### 13. Kontak
-- Contact form di website
-- Email notification ke admin
-- Message storage di database
-
-### 14. Upload Berita (Admin)
-- Filament Resource untuk CRUD articles
-- Rich text editor (TinyMCE/Quill)
-- Featured image upload
-- Draft & publish status
-- Schedule publish date
-
----
-
-## 🚀 Deployment
-
-### 1. Preparation Checklist
 ```bash
-# 1. Environment
-cp .env.example .env
-php artisan key:generate
+sudo certbot --nginx -d hasberita.id -d www.hasberita.id
+```
 
-# 2. Database migration
+#### 9. Setup Queue Worker dengan Supervisor
+
+Buat file konfigurasi Supervisor:
+
+```bash
+sudo nano /etc/supervisor/conf.d/hasberita-worker.conf
+```
+
+Isi dengan:
+
+```ini
+[program:hasberita-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/hasberita/artisan queue:work database --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/www/hasberita/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+Aktifkan:
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start hasberita-worker:*
+```
+
+#### 10. Setup Cron (Laravel Scheduler)
+
+```bash
+sudo crontab -e
+```
+
+Tambahkan:
+
+```
+* * * * * cd /var/www/hasberita && php artisan schedule:run >> /dev/null 2>&1
+```
+
+---
+
+### Update Deployment (setelah ada perubahan kode)
+
+```bash
+cd /var/www/hasberita
+
+# Pull perubahan terbaru
+git pull origin main
+
+# Install dependensi baru (jika ada)
+composer install --optimize-autoloader --no-dev
+
+# Jalankan migrasi baru (jika ada)
 php artisan migrate --force
 
-# 3. Storage link
-php artisan storage:link
+# Build frontend (jika ada perubahan JS/CSS)
+npm run build
 
-# 4. Cache clear
+# Clear & rebuild cache
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# 5. Frontend build
-npm run build
-
-# 6. Optimize
-php artisan optimize
-```
-
-### 2. Shared Hosting (cPanel)
-```bash
-# Upload files via FTP/SFTP ke public_html
-# Struktur yang paling penting:
-# public/ -> public_html/
-# app/, config/, database/, routes/, etc -> public_html/app, dst
-
-# SSH Commands:
-cd public_html
-composer install --no-dev
-php artisan migrate --force
-php artisan storage:link
-chmod -R 755 storage bootstrap/cache
-```
-
-### 3. VPS/Cloud (AWS, DigitalOcean)
-```bash
-# Install dependencies
-sudo apt update
-sudo apt install php8.2 php8.2-fpm mysql-server nodejs npm nginx
-
-# Setup project
-git clone <your-repo>
-cd portal-berita
-composer install
-npm install && npm run build
-php artisan migrate
-php artisan storage:link
-
-# Nginx configuration
-sudo cp .nginx.conf /etc/nginx/sites-available/portal-berita
-sudo ln -s /etc/nginx/sites-available/portal-berita /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-
-# SSL (Let's Encrypt)
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d yourdomain.com
-```
-
-### 4. Docker Setup
-```dockerfile
-# Dockerfile
-FROM php:8.2-fpm
-RUN apt-get update && apt-get install -y \
-    mysql-client \
-    git \
-    curl \
-    libpng-dev \
-    libjpeg-dev \
-    && docker-php-ext-install pdo pdo_mysql gd
-
-WORKDIR /var/www/html
-COPY . .
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install
-RUN npm install && npm run build
-```
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: portal_berita
-      MYSQL_ROOT_PASSWORD: root
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  app:
-    build: .
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - mysql
-    command: php artisan serve --host=0.0.0.0
-
-volumes:
-  mysql_data:
+# Restart queue worker
+sudo supervisorctl restart hasberita-worker:*
 ```
 
 ---
 
-## 🔧 Troubleshooting
+## Konfigurasi Fitur Langganan (Subscribe)
 
-### Error: "Class 'Filament\Facades\Filament' not found"
-```bash
-php artisan cache:clear
-php artisan config:clear
-composer dump-autoload
+Fitur langganan mengirim email ke semua subscriber setiap kali artikel baru dipublikasikan.
+
+### 1. Daftar Akun Resend
+
+1. Buka [resend.com](https://resend.com) dan buat akun gratis
+2. Masuk ke dashboard → **API Keys** → **Create API Key**
+3. Salin API key yang dihasilkan
+
+### 2. Verifikasi Domain (untuk production)
+
+Di dashboard Resend:
+1. Masuk ke **Domains** → **Add Domain**
+2. Masukkan domain kamu (contoh: `hasberita.id`)
+3. Tambahkan DNS record yang diberikan Resend ke domain kamu (biasanya di Cloudflare / cPanel)
+4. Tunggu verifikasi selesai (biasanya 5–30 menit)
+
+> Untuk **development/testing**, kamu bisa pakai domain `onboarding@resend.dev` bawaan Resend tanpa verifikasi, tapi email hanya bisa dikirim ke email yang terdaftar di akun Resend kamu.
+
+### 3. Konfigurasi `.env`
+
+```env
+MAIL_MAILER=resend
+MAIL_FROM_ADDRESS="noreply@hasberita.id"
+MAIL_FROM_NAME="Hasberita.id"
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+
+QUEUE_CONNECTION=database
 ```
 
-### Error: "SQLSTATE[HY000]: General error: 1030 Got error..."
+### 4. Jalankan Queue Worker
+
+Email dikirim secara background (tidak blocking). Pastikan queue worker selalu jalan:
+
+**Development:**
 ```bash
-# Biasanya disk space penuh atau table corrupted
-# Check:
-df -h
-# Repair table:
-php artisan tinker
-# Atau gunakan MySQL repair:
-REPAIR TABLE articles;
-```
-
-### Error: "File not found: storage/app/public"
-```bash
-php artisan storage:link
-chmod -R 775 storage/
-chmod -R 775 bootstrap/cache/
-```
-
-### Slow Query Performance
-```bash
-# Add indexes:
-php artisan tinker
-# Atau edit migration & re-run
-php artisan migrate:refresh
-```
-
-### Email Not Sending
-```bash
-# Check .env MAIL configuration
-# Test:
-php artisan tinker
-Mail::raw('Test email', function($m) { $m->to('test@test.com'); });
-```
-
-### Vue Components Not Rendering
-```bash
-# Rebuild assets:
-npm run dev
-# atau 
-npm run build
-
-# Check app.blade.php has:
-<script src="{{ asset('js/app.js') }}"></script>
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-```
-
----
-
-## 📚 Useful Commands
-
-```bash
-# Development
-php artisan serve
-npm run dev
-
-# Database
-php artisan migrate
-php artisan migrate:rollback
-php artisan tinker
-
-# Cache
-php artisan cache:clear
-php artisan config:cache
-php artisan route:cache
-
-# Queue (untuk email newsletter)
 php artisan queue:work
-
-# Artisan Make Commands
-php artisan make:model Article -m -c -r
-php artisan make:migration create_articles_table
-php artisan make:controller ArticleController
-php artisan make:filament-resource Article
-
-# Testing
-php artisan test
-pest
-
-# Production
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan optimize
 ```
 
+**Production** — gunakan Supervisor (lihat bagian Deployment di atas).
+
+### 5. Test Kirim Email
+
+Publish sebuah artikel dari panel admin (`/admin` → Artikel → ubah status ke **Dipublikasikan**).
+
+Cek status job di queue:
+```bash
+php artisan queue:work --verbose
+```
+
+Jika ada job gagal:
+```bash
+php artisan queue:failed        # lihat daftar job gagal
+php artisan queue:retry all     # coba ulang semua job gagal
+php artisan queue:flush         # hapus semua job gagal
+```
+
+### Catatan Penting
+
+- Subscriber harus **login** terlebih dahulu sebagai reader, lalu klik tombol **Langganan Gratis** di footer
+- Email konfirmasi langganan dikirim otomatis saat subscribe
+- Subscriber bisa berhenti langganan via link di setiap email notifikasi
+- Notifikasi hanya dikirim **sekali** per artikel (dicatat di kolom `notified_subscribers_at`)
+
 ---
 
-## 📖 Resources & Documentation
 
-- **Laravel:** https://laravel.com/docs
-- **Filament:** https://filamentphp.com/docs
-- **Vue.js 3:** https://vuejs.org/
-- **Tailwind CSS:** https://tailwindcss.com/
-- **Spatie Packages:** https://spatie.be/open-source
-- **MySQL:** https://dev.mysql.com/doc/
+
+### Ganti Nama Aplikasi
+
+Edit `.env`:
+
+```env
+APP_NAME="Nama Portal Kamu"
+```
+
+### Ganti Informasi Kontak Redaksi
+
+Edit `resources/js/pages/Portal/Contact.vue` — bagian "Informasi Redaksi".
+
+### Ganti Warna Utama
+
+Warna merah (`brand`) didefinisikan di `tailwind.config.js`. Cari `brand` dan ganti nilai hex-nya.
+
+### Tambah/Edit Kategori
+
+Masuk ke panel admin `/admin` → Kategori → Tambah Kategori.
+
+### Tambah Jurnalis
+
+Masuk ke panel admin `/admin` → Jurnalis → Tambah Jurnalis.
 
 ---
 
-**Last Updated:** 2024
-**Author:** Portal Berita Dev Team
-**Version:** 1.0.0
+## Troubleshooting
+
+**Error: `php_network_getaddresses` saat kirim email**
+→ Pastikan `RESEND_API_KEY` sudah benar dan koneksi internet aktif. Untuk development, ganti ke `MAIL_MAILER=log`.
+
+**Gambar tidak muncul**
+→ Jalankan `php artisan storage:link` dan pastikan `FILESYSTEM_DISK=public` di `.env`.
+
+**Queue job gagal**
+→ Cek `php artisan queue:failed` untuk melihat error. Jalankan `php artisan queue:work` di terminal.
+
+**500 Error setelah deploy**
+→ Cek `storage/logs/laravel.log`. Pastikan `APP_DEBUG=false` dan semua cache sudah di-clear.
+
+**Filament tidak bisa login**
+→ Pastikan user di tabel `users` memiliki kolom `is_admin = 1` atau jalankan ulang `php artisan db:seed --class=AdminSeeder`.
 
 ---
 
-## 🎯 Next Steps
-1. ✅ Setup project locally
-2. ✅ Migrate database
-3. ✅ Create Filament resources
-4. ✅ Build Vue components
-5. ✅ Test semua fitur
-6. ✅ Deploy ke production
+## Developer
 
-Semoga sukses! 🚀
+Dikembangkan oleh [@Whanss](https://github.com/Whanss)
+
+---
+
+## Lisensi
+
+MIT License
