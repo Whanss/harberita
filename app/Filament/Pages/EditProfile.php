@@ -3,18 +3,12 @@
 namespace App\Filament\Pages;
 
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class EditProfile extends BaseEditProfile
 {
-    protected function getRedirectUrl(): ?string
-    {
-        return Filament::getUrl();
-    }
-
     public function form(Schema $schema): Schema
     {
         return $schema

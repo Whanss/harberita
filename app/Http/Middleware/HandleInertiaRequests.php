@@ -21,6 +21,24 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
+     * Skip this middleware for Livewire and Filament requests.
+     */
+    public function handle(Request $request, \Closure $next): mixed
+    {
+        $path = $request->path();
+
+        if (
+            str($path)->startsWith('admin') ||
+            str($path)->contains('livewire') ||
+            $request->hasHeader('X-Livewire')
+        ) {
+            return $next($request);
+        }
+
+        return parent::handle($request, $next);
+    }
+
+    /**
      * Determines the current asset version.
      *
      * @see https://inertiajs.com/asset-versioning
