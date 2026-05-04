@@ -219,8 +219,16 @@ const getVideoEmbed = (url: string): string | null => {
 
                     <!-- Journalist card -->
                     <div v-if="article.journalist" class="mt-6 flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5">
-                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-xl font-bold text-red-600">
-                            {{ article.journalist.name?.charAt(0) }}
+                        <div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full">
+                            <img
+                                v-if="article.journalist.photo_path"
+                                :src="`/storage/${article.journalist.photo_path}`"
+                                :alt="article.journalist.name"
+                                class="h-full w-full object-cover"
+                            />
+                            <div v-else class="flex h-full w-full items-center justify-center bg-red-100 text-xl font-bold text-red-600">
+                                {{ article.journalist.name?.charAt(0) }}
+                            </div>
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wide text-red-600">Penulis</p>

@@ -13,8 +13,9 @@ defineProps<{
         <div class="flex w-full max-w-md flex-col gap-6">
             <Link :href="route('home')" class="flex items-center gap-2 self-center font-medium">
                 <div class="flex items-baseline gap-1">
-                    <span class="text-xl font-black text-gray-900">PORTAL</span>
+                    <span class="text-xl font-black text-gray-900">HAS</span>
                     <span class="text-xl font-black text-red-600">BERITA</span>
+                    <span class="text-xl font-black text-gray-900">.id</span>
                 </div>
             </Link>
 

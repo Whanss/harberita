@@ -1,22 +1,41 @@
 <script setup lang="ts">
 import { useScrolled } from '@/composables/useIntersectionObserver';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { Link, useForm, usePage, router } from '@inertiajs/vue3';
 
 const page = usePage();
 const categories = computed(() => (page.props.categories as any[]) ?? []);
 const currentUser = computed(() => (page.props.auth as any)?.reader ?? null);
 const mobileMenuOpen = ref(false);
+const moreMenuOpen = ref(false);
 const scrolled = useScrolled(20);
 
-const currentUrl = computed(() => page.url);
+const MAX_VISIBLE_CATS = 8;
+const visibleCategories = computed(() => categories.value.slice(0, MAX_VISIBLE_CATS));
+const hiddenCategories = computed(() => categories.value.slice(MAX_VISIBLE_CATS));
+const hasMoreCategories = computed(() => hiddenCategories.value.length > 0);
 
+const currentUrl = computed(() => page.url);
 const isHome = computed(() => currentUrl.value === '/' || currentUrl.value.startsWith('/?'));
 const isArchive = computed(() => currentUrl.value.startsWith('/arsip'));
 const activeCategorySlug = computed(() => {
     const match = currentUrl.value.match(/^\/kategori\/([^/?]+)/);
     return match ? match[1] : null;
 });
+
+// Close more menu on outside click
+const moreMenuRef = ref<HTMLElement | null>(null);
+const handleOutsideClick = (e: MouseEvent) => {
+    if (moreMenuRef.value && !moreMenuRef.value.contains(e.target as Node)) {
+        moreMenuOpen.value = false;
+    }
+};
+onMounted(() => document.addEventListener('click', handleOutsideClick));
+onUnmounted(() => document.removeEventListener('click', handleOutsideClick));
+
+const toggleMore = () => {
+    moreMenuOpen.value = !moreMenuOpen.value;
+};
 
 const subscriptionForm = useForm({ email: '' });
 const submitSubscription = () => {
@@ -26,10 +45,7 @@ const submitSubscription = () => {
     });
 };
 
-const logout = () => {
-    router.post(route('logout'));
-};
-
+const logout = () => { router.post(route('logout')); };
 const currentYear = new Date().getFullYear();
 </script>
 
@@ -44,7 +60,7 @@ const currentYear = new Date().getFullYear();
                 </span>
                 <div class="overflow-hidden flex-1">
                     <p class="animate-marquee whitespace-nowrap text-xs font-medium text-white/90">
-                        📰 Portal Berita Terpercaya &nbsp;•&nbsp; Informasi Terkini, Akurat, dan Berimbang &nbsp;•&nbsp; Selamat datang di Portal Berita &nbsp;•&nbsp; Dapatkan berita terbaru setiap saat
+                        📰 Hasberita.id &nbsp;•&nbsp; Informasi Terkini, Akurat, dan Berimbang &nbsp;•&nbsp; Selamat datang di Hasberita.id &nbsp;•&nbsp; Dapatkan berita terbaru setiap saat
                     </p>
                 </div>
             </div>
@@ -59,8 +75,9 @@ const currentYear = new Date().getFullYear();
                         <div class="flex flex-col leading-none">
                             <span class="font-sans text-xs font-semibold uppercase tracking-widest text-ink-400">Situs</span>
                             <div class="flex items-baseline gap-1">
-                                <span class="font-headline text-2xl font-black text-ink-900 transition-colors group-hover:text-ink-700">PORTAL</span>
+                                <span class="font-headline text-2xl font-black text-ink-900 transition-colors group-hover:text-ink-700">HAS</span>
                                 <span class="font-headline text-2xl font-black text-brand-600 transition-colors group-hover:text-brand-700">BERITA</span>
+                                <span class="font-headline text-2xl font-black text-ink-900 transition-colors group-hover:text-ink-700">.id</span>
                             </div>
                         </div>
                     </Link>
@@ -121,15 +138,7 @@ const currentYear = new Date().getFullYear();
                         </template>
                     </div>
 
-                    <!-- Mobile menu button -->
-                    <button class="rounded p-1.5 text-ink-600 transition-colors hover:bg-ink-100 md:hidden" @click="mobileMenuOpen = !mobileMenuOpen">
-                        <svg v-if="!mobileMenuOpen" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <!-- Mobile: hapus hamburger dari header putih, sudah ada di navbar hitam -->
                 </div>
             </div>
         </div>
@@ -141,90 +150,170 @@ const currentYear = new Date().getFullYear();
         >
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center">
+
                     <!-- Home link -->
                     <Link
                         :href="route('home')"
-                        class="relative flex items-center gap-1.5 border-r border-ink-700 px-4 py-3 text-xs font-black uppercase tracking-widest transition-colors hover:text-white"
-                        :class="isHome ? 'text-white' : 'text-ink-400 hover:bg-ink-800'"
+                        class="relative flex items-center gap-1.5 border-r border-ink-700 px-4 py-3 text-xs font-black uppercase tracking-widest transition-colors hover:bg-ink-800 hover:text-white"
+                        :class="isHome ? 'text-white' : 'text-ink-400'"
                     >
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
                         Home
-                        <!-- Active indicator -->
                         <span v-if="isHome" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                     </Link>
 
-                    <!-- Category links -->
-                    <div class="hidden items-center md:flex">
+                    <!-- Desktop: visible categories -->
+                    <div class="hidden items-center md:flex min-w-0">
                         <Link
-                            v-for="cat in categories"
+                            v-for="cat in visibleCategories"
                             :key="cat.id"
                             :href="route('categories.show', cat.slug)"
-                            class="relative px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all hover:text-white"
-                            :class="activeCategorySlug === cat.slug ? 'text-white' : 'text-ink-400 hover:bg-ink-800'"
+                            class="relative flex-shrink-0 px-3 py-3 text-xs font-bold uppercase tracking-wider transition-all hover:bg-ink-800 hover:text-white"
+                            :class="activeCategorySlug === cat.slug ? 'text-white' : 'text-ink-400'"
                         >
                             {{ cat.name }}
-                            <!-- Active indicator -->
                             <span v-if="activeCategorySlug === cat.slug" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                         </Link>
+
+                        <!-- More button + mega dropdown -->
+                        <div v-if="hasMoreCategories" ref="moreMenuRef" class="relative flex-shrink-0">
+                            <button
+                                @click.stop="toggleMore"
+                                class="relative flex items-center gap-1.5 border-l border-ink-700 px-3 py-3 text-xs font-bold uppercase tracking-wider transition-all hover:bg-ink-800 hover:text-white"
+                                :class="moreMenuOpen || hiddenCategories.some(c => c.slug === activeCategorySlug) ? 'text-white bg-ink-800' : 'text-ink-400'"
+                            >
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                                More
+                                <svg class="h-3 w-3 transition-transform duration-200" :class="moreMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                <span v-if="hiddenCategories.some(c => c.slug === activeCategorySlug)" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
+                            </button>
+
+                            <!-- Mega dropdown panel -->
+                            <Transition
+                                enter-active-class="transition duration-200 ease-out"
+                                enter-from-class="opacity-0 -translate-y-1"
+                                enter-to-class="opacity-100 translate-y-0"
+                                leave-active-class="transition duration-150 ease-in"
+                                leave-from-class="opacity-100 translate-y-0"
+                                leave-to-class="opacity-0 -translate-y-1"
+                            >
+                                <div
+                                    v-if="moreMenuOpen"
+                                    class="absolute top-full left-0 z-50 mt-px min-w-[480px] rounded-b-lg border border-ink-700 bg-ink-900 p-4 shadow-2xl"
+                                >
+                                    <p class="mb-3 text-xs font-black uppercase tracking-widest text-ink-500">Kategori Lainnya</p>
+                                    <div class="grid grid-cols-3 gap-1">
+                                        <Link
+                                            v-for="cat in hiddenCategories"
+                                            :key="cat.id"
+                                            :href="route('categories.show', cat.slug)"
+                                            class="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium transition-colors hover:bg-ink-800 hover:text-white"
+                                            :class="activeCategorySlug === cat.slug ? 'text-white bg-ink-800' : 'text-ink-300'"
+                                            @click="moreMenuOpen = false"
+                                        >
+                                            <svg class="h-3 w-3 flex-shrink-0 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                            {{ cat.name }}
+                                        </Link>
+                                    </div>
+                                </div>
+                            </Transition>
+                        </div>
                     </div>
 
-                    <!-- Right: Archive -->
-                    <div class="ml-auto hidden items-center gap-0 md:flex">
+                    <!-- Right: Archive (desktop) + hamburger mobile -->
+                    <div class="ml-auto flex items-center">
+                        <!-- Archive — desktop only -->
                         <Link
                             :href="route('archive.index')"
-                            class="relative flex items-center gap-1.5 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-colors hover:text-white"
-                            :class="isArchive ? 'text-white' : 'text-ink-400 hover:bg-ink-800'"
+                            class="relative hidden items-center gap-1.5 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-ink-800 hover:text-white md:flex"
+                            :class="isArchive ? 'text-white' : 'text-ink-400'"
                         >
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                             </svg>
                             Arsip
-                            <!-- Active indicator -->
                             <span v-if="isArchive" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                         </Link>
+
+                        <!-- Mobile hamburger — di navbar hitam, style sama seperti Home -->
+                        <button
+                            class="relative flex items-center gap-1.5 border-l border-ink-700 px-4 py-3 text-xs font-black uppercase tracking-widest transition-colors hover:bg-ink-800 hover:text-white md:hidden"
+                            :class="mobileMenuOpen ? 'text-white bg-ink-800' : 'text-ink-400'"
+                            @click="mobileMenuOpen = !mobileMenuOpen"
+                        >
+                            <svg v-if="!mobileMenuOpen" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Mobile menu -->
+            <!-- Mobile menu — full width panel di bawah navbar -->
             <Transition
                 enter-active-class="transition duration-200 ease-out"
-                enter-from-class="-translate-y-2 opacity-0"
-                enter-to-class="translate-y-0 opacity-100"
+                enter-from-class="opacity-0 -translate-y-2"
+                enter-to-class="opacity-100 translate-y-0"
                 leave-active-class="transition duration-150 ease-in"
-                leave-from-class="translate-y-0 opacity-100"
-                leave-to-class="-translate-y-2 opacity-0"
+                leave-from-class="opacity-100 translate-y-0"
+                leave-to-class="opacity-0 -translate-y-2"
             >
                 <div v-if="mobileMenuOpen" class="border-t border-ink-700 bg-ink-900 md:hidden">
-                    <div class="grid grid-cols-2 gap-px bg-ink-700 p-px">
+                    <!-- Header kategori -->
+                    <div class="px-4 pt-3 pb-1">
+                        <p class="text-xs font-black uppercase tracking-widest text-ink-500">Kategori</p>
+                    </div>
+                    <!-- Grid kategori -->
+                    <div class="grid grid-cols-2 gap-px bg-ink-800 border-t border-ink-700 mt-2">
                         <Link
                             v-for="cat in categories"
                             :key="cat.id"
                             :href="route('categories.show', cat.slug)"
-                            class="relative bg-ink-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-ink-800 hover:text-white"
-                            :class="activeCategorySlug === cat.slug ? 'text-white' : 'text-ink-400'"
+                            class="relative flex items-center gap-2 bg-ink-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-ink-800 hover:text-white"
+                            :class="activeCategorySlug === cat.slug ? 'text-white bg-ink-800' : 'text-ink-400'"
                             @click="mobileMenuOpen = false"
                         >
+                            <svg class="h-2.5 w-2.5 flex-shrink-0" :class="activeCategorySlug === cat.slug ? 'text-brand-500' : 'text-ink-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
                             {{ cat.name }}
-                            <span v-if="activeCategorySlug === cat.slug" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                         </Link>
                     </div>
-                    <div class="flex gap-px bg-ink-700 p-px">
+                    <!-- Bottom links -->
+                    <div class="flex border-t border-ink-700">
                         <Link
                             :href="route('archive.index')"
-                            class="relative flex flex-1 items-center justify-center gap-1.5 bg-ink-900 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider transition-colors hover:bg-ink-800 hover:text-white"
-                            :class="isArchive ? 'text-white' : 'text-ink-400'"
+                            class="relative flex flex-1 items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-ink-800 hover:text-white"
+                            :class="isArchive ? 'text-white bg-ink-800' : 'text-ink-400'"
                             @click="mobileMenuOpen = false"
                         >
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                             </svg>
                             Arsip
-                            <span v-if="isArchive" class="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500"></span>
                         </Link>
-                        <Link :href="route('contact.index')" class="flex-1 bg-ink-900 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-ink-400 transition-colors hover:bg-ink-800 hover:text-white" @click="mobileMenuOpen = false">Kontak</Link>
+                        <div class="w-px bg-ink-700"></div>
+                        <Link
+                            :href="route('contact.index')"
+                            class="flex flex-1 items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-ink-400 transition-colors hover:bg-ink-800 hover:text-white"
+                            @click="mobileMenuOpen = false"
+                        >
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            Kontak
+                        </Link>
                     </div>
                 </div>
             </Transition>
@@ -308,8 +397,9 @@ const currentYear = new Date().getFullYear();
                 <div class="grid gap-8 md:grid-cols-3">
                     <div>
                         <div class="mb-3 flex items-baseline gap-1">
-                            <span class="font-headline text-lg font-black text-white">PORTAL</span>
+                            <span class="font-headline text-lg font-black text-white">HAS</span>
                             <span class="font-headline text-lg font-black text-brand-500">BERITA</span>
+                            <span class="font-headline text-lg font-black text-white">.id</span>
                         </div>
                         <p class="text-sm leading-relaxed">Sumber informasi terpercaya dengan liputan berita terkini, akurat, dan berimbang untuk masyarakat Indonesia.</p>
                         <div class="mt-4 flex gap-2">
@@ -346,8 +436,20 @@ const currentYear = new Date().getFullYear();
                         </ul>
                     </div>
                 </div>
-                <div class="mt-8 border-t border-ink-800 pt-6 text-center text-xs">
-                    &copy; {{ currentYear }} Portal Berita. Seluruh hak cipta dilindungi.
+                <div class="mt-8 border-t border-ink-800 pt-6 flex items-center justify-between text-xs text-ink-600">
+                    <p>&copy; {{ currentYear }} Hasberita.id. Seluruh hak cipta dilindungi.</p>
+                    <a
+                        href="https://github.com/Whanss"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-1.5 text-ink-500 transition-colors hover:text-white"
+                        title="GitHub Developer"
+                    >
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        Whanss
+                    </a>
                 </div>
             </div>
         </footer>

@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->profile(EditProfile::class)
-            ->brandName('Portal Berita')
+            ->brandName('Hasberita.id')
             ->colors([
                 'primary' => Color::Red,
             ])

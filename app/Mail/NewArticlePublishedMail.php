@@ -17,7 +17,9 @@ class NewArticlePublishedMail extends Mailable
     public function __construct(
         public Article $article,
         public Subscription $subscription,
-    ) {}
+    ) {
+        $this->article->loadMissing(['category', 'journalist']);
+    }
 
     /**
      * Get the message envelope.

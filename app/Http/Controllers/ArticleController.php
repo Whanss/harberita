@@ -24,7 +24,7 @@ class ArticleController extends Controller
 
         $article->refresh()->load([
             'category:id,name,slug',
-            'journalist:id,name,slug,position,bio',
+            'journalist:id,name,slug,position,bio,photo_path',
             'comments' => fn ($query) => $query
                 ->where('status', 'approved')
                 ->with('reader:id,name')

@@ -21,7 +21,7 @@ class SubscriptionConfirmedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Konfirmasi Langganan Portal Berita',
+            subject: 'Konfirmasi Langganan Hasberita.id',
         );
     }
 

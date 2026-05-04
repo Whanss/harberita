@@ -15,8 +15,9 @@ defineProps<{
         <div class="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
             <div class="absolute inset-0 bg-zinc-900" />
             <Link :href="route('home')" class="relative z-20 flex items-center gap-1 text-lg font-medium">
-                <span class="font-black text-white">PORTAL</span>
+                <span class="font-black text-white">HAS</span>
                 <span class="font-black text-red-400">BERITA</span>
+                <span class="font-black text-white">.id</span>
             </Link>
             <div v-if="quote" class="relative z-20 mt-auto">
                 <blockquote class="space-y-2">

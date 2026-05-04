@@ -44,7 +44,7 @@ const submit = () => {
                                 </div>
                                 <div>
                                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Nama Redaksi</p>
-                                    <p class="font-medium text-gray-900">Portal Berita</p>
+                                    <p class="font-medium text-gray-900">Hasberita.id</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-3">

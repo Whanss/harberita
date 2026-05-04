@@ -27,7 +27,7 @@
     <div class="wrapper">
         <div class="header">
             <h1>{{ config('app.name') }}</h1>
-            <p>Portal Berita Terpercaya</p>
+            <p>Hasberita.id — Berita Terpercaya</p>
         </div>
         <div class="body">
             <h2>Langganan Berhasil! 🎉</h2>

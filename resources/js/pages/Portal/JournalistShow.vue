@@ -21,8 +21,17 @@ const { formatRelative } = useRelativeTime();
                 <div class="h-24 bg-gradient-to-r from-red-600 to-red-800"></div>
                 <div class="px-6 pb-6">
                     <div class="-mt-10 mb-4 flex items-end gap-4">
-                        <div class="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-red-100 text-3xl font-bold text-red-600 shadow-md">
-                            {{ journalist.name?.charAt(0) }}
+                        <!-- Foto profil jurnalis -->
+                        <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-4 border-white shadow-md">
+                            <img
+                                v-if="journalist.photo_path"
+                                :src="`/storage/${journalist.photo_path}`"
+                                :alt="journalist.name"
+                                class="h-full w-full object-cover"
+                            />
+                            <div v-else class="flex h-full w-full items-center justify-center bg-red-100 text-3xl font-bold text-red-600">
+                                {{ journalist.name?.charAt(0) }}
+                            </div>
                         </div>
                         <div class="pb-1">
                             <h1 class="text-2xl font-bold text-gray-900">{{ journalist.name }}</h1>

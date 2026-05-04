@@ -53,7 +53,7 @@ const pushRef = (el: any) => {
 
 <template>
     <PortalLayout>
-        <Head title="Portal Berita — Informasi Terkini" />
+        <Head title="Hasberita.id — Informasi Terkini" />
 
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <div class="grid gap-6 lg:grid-cols-4">

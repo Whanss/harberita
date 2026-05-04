@@ -31,8 +31,10 @@
             <span class="badge">BERITA BARU</span>
         </div>
 
-        @if($article->featured_image)
+        @if($article->featured_image && !str_contains(config('app.url'), '127.0.0.1') && !str_contains(config('app.url'), 'localhost'))
             <img src="{{ url('storage/' . $article->featured_image) }}" alt="{{ $article->title }}" class="article-image">
+        @elseif($article->featured_image && (str_contains(config('app.url'), '127.0.0.1') || str_contains(config('app.url'), 'localhost')))
+            <div class="article-image-placeholder">📰 {{ $article->title }}</div>
         @else
             <div class="article-image-placeholder">Tidak ada gambar</div>
         @endif

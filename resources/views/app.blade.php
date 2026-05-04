@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#dc2626">
 
-        <title inertia>{{ config('app.name', 'Portal Berita') }}</title>
+        <title inertia>{{ config('app.name', 'Hasberita.id') }}</title>
 
         {{-- Google Fonts: Merriweather (serif headlines) + Inter (body) --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
