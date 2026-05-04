@@ -37,6 +37,23 @@
         --sidebar-ring: 217.2 91.2% 59.8%;
     }
 
+    /* Force light mode for auth pages */
+    .light {
+        --background: 0 0% 100%;
+        --foreground: 222 20% 10%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 20% 10%;
+        --primary: 0 0% 9%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 92.1%;
+        --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --border: 220 13% 91%;
+        --input: 220 13% 91%;
+        color-scheme: light;
+    }
+
     .dark {
         --background: 222 20% 8%;
         --foreground: 0 0% 98%;

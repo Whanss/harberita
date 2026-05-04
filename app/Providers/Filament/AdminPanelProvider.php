@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\EditProfile;
 use App\Filament\Widgets\LatestArticlesWidget;
 use App\Filament\Widgets\StatsOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
@@ -29,11 +30,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile(EditProfile::class)
             ->brandName('Portal Berita')
             ->colors([
                 'primary' => Color::Red,
             ])
             ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('13rem')
+            ->collapsedSidebarWidth('3.5rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

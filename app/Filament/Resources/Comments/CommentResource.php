@@ -64,8 +64,9 @@ class CommentResource extends Resource
             ->columns([
                 TextColumn::make('content')
                     ->label('Komentar')
-                    ->limit(60)
-                    ->searchable(),
+                    ->limit(50)
+                    ->searchable()
+                    ->weight('medium'),
                 TextColumn::make('article.title')
                     ->label('Artikel')
                     ->limit(40)
@@ -95,8 +96,10 @@ class CommentResource extends Resource
             ])
             ->filters([])
             ->recordActions([
-                ViewAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->icon('heroicon-o-eye'),
+                DeleteAction::make()
+                    ->icon('heroicon-o-trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

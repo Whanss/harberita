@@ -63,25 +63,33 @@ class SubscriptionResource extends Resource
             ->columns([
                 TextColumn::make('email')
                     ->label('Email')
-                    ->searchable(),
+                    ->searchable()
+                    ->weight('medium'),
                 IconColumn::make('is_active')
                     ->label('Aktif')
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 TextColumn::make('subscribed_at')
-                    ->label('Berlangganan Sejak')
-                    ->dateTime('d M Y, H:i')
+                    ->label('Berlangganan')
+                    ->dateTime('d M Y')
                     ->sortable(),
                 TextColumn::make('unsubscribed_at')
-                    ->label('Berhenti Pada')
-                    ->dateTime('d M Y, H:i')
-                    ->sortable(),
+                    ->label('Berhenti')
+                    ->dateTime('d M Y')
+                    ->sortable()
+                    ->placeholder('-'),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->icon('heroicon-o-pencil-square'),
+                DeleteAction::make()
+                    ->icon('heroicon-o-trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

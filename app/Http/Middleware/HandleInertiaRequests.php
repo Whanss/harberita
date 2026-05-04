@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Category;
+use App\Models\Subscription;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,16 @@ class HandleInertiaRequests extends Middleware
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get(['id', 'name', 'slug']),
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error'   => fn () => $request->session()->get('error'),
+            ],
+            'csrf_token' => csrf_token(),
+            'isSubscribed' => fn () => Auth::guard('reader')->check()
+                ? Subscription::where('email', Auth::guard('reader')->user()->email)
+                    ->where('is_active', true)
+                    ->exists()
+                : false,
         ]);
     }
 }

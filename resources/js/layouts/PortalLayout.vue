@@ -245,24 +245,56 @@ const currentYear = new Date().getFullYear();
                 </div>
                 <h2 class="mb-1 font-headline text-2xl font-black text-white">Jangan Lewatkan Berita Terbaru</h2>
                 <p class="mb-6 text-sm text-ink-400">Daftarkan email Anda dan dapatkan notifikasi berita terkini langsung di inbox.</p>
-                <form class="flex flex-col gap-3 sm:flex-row sm:justify-center" @submit.prevent="submitSubscription">
-                    <input
-                        v-model="subscriptionForm.email"
-                        type="email"
-                        placeholder="Masukkan alamat email..."
-                        class="w-full rounded border border-ink-700 bg-ink-800 px-4 py-2.5 text-sm text-white placeholder-ink-500 transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none sm:w-72"
-                    />
+
+                <!-- Sudah subscribe -->
+                <div v-if="(page.props as any).isSubscribed" class="inline-flex items-center gap-2 rounded-full bg-green-500/20 px-6 py-3 text-sm font-semibold text-green-400">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Kamu sudah berlangganan newsletter kami!
+                </div>
+
+                <!-- Sudah login tapi belum subscribe -->
+                <form v-else-if="currentUser" class="flex justify-center" @submit.prevent="submitSubscription">
                     <button
                         type="submit"
                         :disabled="subscriptionForm.processing"
-                        class="group flex items-center justify-center gap-2 rounded bg-brand-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-brand-700 hover:shadow-brand disabled:opacity-60"
+                        class="group flex items-center justify-center gap-2 rounded bg-brand-600 px-8 py-2.5 text-sm font-bold text-white transition-all hover:bg-brand-700 hover:shadow-brand disabled:opacity-60"
                     >
-                        <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        {{ subscriptionForm.processing ? 'Memproses...' : 'Langganan' }}
+                        {{ subscriptionForm.processing ? 'Memproses...' : 'Langganan Gratis' }}
                     </button>
                 </form>
+
+                <!-- Belum login: form email -->
+                <template v-else>
+                    <form class="flex flex-col gap-3 sm:flex-row sm:justify-center" @submit.prevent="submitSubscription">
+                        <input
+                            v-model="subscriptionForm.email"
+                            type="email"
+                            placeholder="Masukkan alamat email..."
+                            class="w-full rounded border border-ink-700 bg-ink-800 px-4 py-2.5 text-sm text-white placeholder-ink-500 transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none sm:w-72"
+                        />
+                        <button
+                            type="submit"
+                            :disabled="subscriptionForm.processing"
+                            class="group flex items-center justify-center gap-2 rounded bg-brand-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-brand-700 hover:shadow-brand disabled:opacity-60"
+                        >
+                            <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                            {{ subscriptionForm.processing ? 'Memproses...' : 'Langganan' }}
+                        </button>
+                    </form>
+                    <p class="mt-3 text-xs text-ink-500">
+                        Sudah punya akun?
+                        <Link :href="route('login')" class="font-semibold text-brand-400 hover:underline">Masuk</Link>
+                        untuk langganan 1 klik.
+                    </p>
+                </template>
+
                 <Transition enter-active-class="transition duration-300" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0">
                     <p v-if="subscriptionForm.errors.email" class="mt-2 text-xs text-brand-400">{{ subscriptionForm.errors.email }}</p>
                     <p v-else-if="subscriptionForm.recentlySuccessful" class="mt-2 text-xs font-semibold text-green-400">✓ Berhasil! Cek email Anda untuk konfirmasi.</p>

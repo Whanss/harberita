@@ -75,18 +75,30 @@ class JournalistResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                ImageColumn::make('photo_path')
+                    ->label('Foto')
+                    ->size(40)
+                    ->circular()
+                    ->defaultImageUrl(null),
                 TextColumn::make('name')
                     ->label('Nama')
-                    ->searchable(),
+                    ->searchable()
+                    ->weight('medium'),
                 TextColumn::make('position')
                     ->label('Jabatan')
-                    ->searchable(),
+                    ->searchable()
+                    ->color('gray'),
                 TextColumn::make('slug')
                     ->label('Slug')
-                    ->searchable(),
+                    ->searchable()
+                    ->color('gray'),
                 IconColumn::make('is_active')
                     ->label('Aktif')
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 TextColumn::make('updated_at')
                     ->label('Diperbarui')
                     ->since()
@@ -96,8 +108,10 @@ class JournalistResource extends Resource
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->icon('heroicon-o-pencil-square'),
+                DeleteAction::make()
+                    ->icon('heroicon-o-trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

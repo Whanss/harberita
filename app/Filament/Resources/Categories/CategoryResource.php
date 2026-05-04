@@ -62,16 +62,27 @@ class CategoryResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->label('Nama')
-                    ->searchable(),
+                    ->searchable()
+                    ->weight('medium'),
                 TextColumn::make('slug')
                     ->label('Slug')
-                    ->searchable(),
+                    ->searchable()
+                    ->color('gray'),
+                TextColumn::make('description')
+                    ->label('Deskripsi')
+                    ->limit(50)
+                    ->color('gray'),
                 IconColumn::make('is_active')
                     ->label('Aktif')
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 TextColumn::make('articles_count')
                     ->counts('articles')
-                    ->label('Jumlah Artikel'),
+                    ->label('Artikel')
+                    ->alignment('center'),
                 TextColumn::make('updated_at')
                     ->label('Diperbarui')
                     ->since()
@@ -81,8 +92,10 @@ class CategoryResource extends Resource
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->icon('heroicon-o-pencil-square'),
+                DeleteAction::make()
+                    ->icon('heroicon-o-trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

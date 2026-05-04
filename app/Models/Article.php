@@ -58,7 +58,7 @@ class Article extends Model
                 ->select(['email', 'token'])
                 ->chunk(100, function ($subscriptions) use ($article): void {
                     foreach ($subscriptions as $subscription) {
-                        Mail::to($subscription->email)->send(new NewArticlePublishedMail($article, $subscription));
+                        Mail::to($subscription->email)->queue(new NewArticlePublishedMail($article, $subscription));
                     }
                 });
 

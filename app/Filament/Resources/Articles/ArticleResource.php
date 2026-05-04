@@ -21,12 +21,19 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 
 class ArticleResource extends Resource
 {
     protected static ?string $model = Article::class;
+
+    public static function getRecordRouteKeyName(): string
+    {
+        return 'id';
+    }
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNewspaper;
 
@@ -123,13 +130,24 @@ class ArticleResource extends Resource
         return $table
             ->recordTitleAttribute('title')
             ->columns([
+                ImageColumn::make('featured_image')
+                    ->label('Gambar')
+                    ->size(40)
+                    ->circular()
+                    ->defaultImageUrl(null),
                 TextColumn::make('title')
                     ->label('Judul')
-                    ->searchable(),
-                TextColumn::make('category.name')
-                    ->label('Kategori'),
+                    ->searchable()
+                    ->weight('medium')
+                    ->limit(50),
                 TextColumn::make('journalist.name')
-                    ->label('Jurnalis'),
+                    ->label('Penulis')
+                    ->searchable()
+                    ->default('-'),
+                TextColumn::make('category.name')
+                    ->label('Kategori')
+                    ->badge()
+                    ->color('orange'),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -147,22 +165,27 @@ class ArticleResource extends Resource
                     }),
                 IconColumn::make('is_headline')
                     ->label('Headline')
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-s-star')
+                    ->falseIcon('heroicon-o-star'),
                 TextColumn::make('view_count')
                     ->label('Views')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignment('center'),
                 TextColumn::make('published_at')
                     ->label('Tanggal Publikasi')
-                    ->dateTime('d M Y, H:i')
+                    ->dateTime('d M Y')
                     ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->icon('heroicon-o-pencil-square'),
+                DeleteAction::make()
+                    ->icon('heroicon-o-trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
