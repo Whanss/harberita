@@ -91,6 +91,7 @@ const pushRef = (el: any) => {
                                     v-if="headline[0].featured_image"
                                     :src="`/storage/${headline[0].featured_image}`"
                                     :alt="headline[0].title"
+                                    loading="eager"
                                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
@@ -140,6 +141,7 @@ const pushRef = (el: any) => {
                                         v-if="item.featured_image"
                                         :src="`/storage/${item.featured_image}`"
                                         :alt="item.title"
+                                        loading="lazy"
                                         class="absolute inset-0 h-full w-full object-cover opacity-80 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
                                     />
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
@@ -184,6 +186,7 @@ const pushRef = (el: any) => {
                                             v-if="item.featured_image"
                                             :src="`/storage/${item.featured_image}`"
                                             :alt="item.title"
+                                            loading="lazy"
                                             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         />
                                         <div v-else class="flex h-full items-center justify-center">
@@ -220,6 +223,7 @@ const pushRef = (el: any) => {
                                             v-if="item.featured_image"
                                             :src="`/storage/${item.featured_image}`"
                                             :alt="item.title"
+                                            loading="lazy"
                                             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         />
                                         <div v-else class="flex h-full items-center justify-center">
@@ -274,6 +278,7 @@ const pushRef = (el: any) => {
                                         v-if="item.featured_image"
                                         :src="`/storage/${item.featured_image}`"
                                         :alt="item.title"
+                                        loading="lazy"
                                         class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                     />
                                     <div v-else class="flex h-full items-center justify-center">
