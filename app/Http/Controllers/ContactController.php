@@ -24,7 +24,7 @@ class ContactController extends Controller
             'message' => ['required', 'string', 'max:2000'],
         ]);
 
-        $to = config('mail.from.address');
+        $to = config('mail.to_address', config('mail.from.address'));
         Mail::to($to)->send(new ContactMessageMail($validated));
 
         return back()->with('success', 'Pesan Anda berhasil dikirim.');

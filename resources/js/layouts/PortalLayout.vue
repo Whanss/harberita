@@ -53,15 +53,27 @@ const currentYear = new Date().getFullYear();
     <div class="min-h-screen bg-ink-50 font-body text-ink-900 antialiased">
 
         <!-- Ticker bar -->
-        <div class="overflow-hidden bg-brand-gradient py-1.5">
-            <div class="flex items-center gap-3 px-4">
-                <span class="flex-shrink-0 rounded-sm bg-white px-2 py-0.5 text-xs font-black uppercase tracking-wide text-brand-700">
-                    Terkini
-                </span>
-                <div class="overflow-hidden flex-1">
-                    <p class="animate-marquee whitespace-nowrap text-xs font-medium text-white/90">
-                        📰 Hasberita.id &nbsp;•&nbsp; Informasi Terkini, Akurat, dan Berimbang &nbsp;•&nbsp; Selamat datang di Hasberita.id &nbsp;•&nbsp; Dapatkan berita terbaru setiap saat
-                    </p>
+        <div class="overflow-hidden bg-brand-gradient py-0">
+            <div class="flex items-stretch">
+                <!-- Label TERKINI -->
+                <div class="flex flex-shrink-0 items-center bg-red-700 px-3 py-1.5 gap-1.5">
+                    <span class="h-1.5 w-1.5 animate-ping rounded-full bg-white"></span>
+                    <span class="text-xs font-black uppercase tracking-widest text-white">Terkini</span>
+                </div>
+                <!-- Divider arrow -->
+                <div class="h-0 w-0 border-t-[28px] border-b-[0px] border-l-[10px] border-t-red-700 border-l-transparent flex-shrink-0" style="border-bottom: 28px solid transparent;"></div>
+                <!-- Scrolling text -->
+                <div class="overflow-hidden flex-1 flex items-center bg-red-600 px-2">
+                    <div class="animate-marquee whitespace-nowrap text-xs font-semibold text-white/95 tracking-wide">
+                        📰 Hasberita.id &nbsp;•&nbsp; Informasi Terkini, Akurat, dan Berimbang &nbsp;•&nbsp; Selamat datang di Hasberita.id &nbsp;•&nbsp; Dapatkan berita terbaru setiap saat &nbsp;•&nbsp; Tetap update bersama Hasberita.id &nbsp;•&nbsp;
+                    </div>
+                </div>
+                <!-- Tanggal kanan -->
+                <div class="hidden md:flex flex-shrink-0 items-center bg-red-700/80 px-3 text-xs font-medium text-white/80 gap-1.5 border-l border-red-500/40">
+                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {{ new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }}
                 </div>
             </div>
         </div>

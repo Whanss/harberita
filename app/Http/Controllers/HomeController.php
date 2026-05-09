@@ -55,8 +55,8 @@ class HomeController extends Controller
             // Load semua artikel untuk 4 kategori sekaligus (hindari N+1)
             $topCategories = Category::query()
                 ->where('is_active', true)
+                ->where('show_on_homepage', true)
                 ->orderBy('name')
-                ->limit(4)
                 ->get(['id', 'name', 'slug']);
 
             $categoryIds = $topCategories->pluck('id');
@@ -71,12 +71,13 @@ class HomeController extends Controller
                 ->groupBy('category_id');
 
             $categoryArticles = $topCategories->map(function (Category $category) use ($articlesByCategory) {
-                $category->setRelation(
-                    'articles',
-                    $articlesByCategory->get($category->id, collect())->take(4)
-                );
-                return $category;
-            });
+                return [
+                    'id'       => $category->id,
+                    'name'     => $category->name,
+                    'slug'     => $category->slug,
+                    'articles' => $articlesByCategory->get($category->id, collect())->take(4)->values(),
+                ];
+            })->values();
 
             return compact('headline', 'latest', 'popular', 'categories', 'categoryArticles');
         });

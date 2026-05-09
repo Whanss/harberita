@@ -73,7 +73,13 @@ class ArticleResource extends Resource
                     ->maxLength(200),
                 RichEditor::make('content')
                     ->label('Konten')
-                    ->required(),
+                    ->required()
+                    ->toolbarButtons([
+                        'bold', 'italic', 'underline', 'strike',
+                        'link', 'blockquote', 'codeBlock',
+                        'bulletList', 'orderedList',
+                        'undo', 'redo',
+                    ]),
                 FileUpload::make('featured_image')
                     ->label('Gambar Utama')
                     ->image()

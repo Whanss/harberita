@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#dc2626">
 
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="shortcut icon" href="/favicon.svg">
+
         <title inertia>{{ config('app.name', 'Hasberita.id') }}</title>
 
         {{-- Google Fonts: Merriweather (serif headlines) + Inter (body) --}}

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -44,7 +45,18 @@ class Article extends Model
 
     protected static function booted(): void
     {
+        // Invalidate homepage & stats cache setiap kali artikel berubah atau dihapus
+        static::deleted(function (): void {
+            Cache::forget('homepage_data');
+            Cache::forget('admin_stats_overview');
+        });
+
         static::saved(function (self $article): void {
+            // Selalu clear cache saat artikel disimpan
+            Cache::forget('homepage_data');
+            Cache::forget('admin_stats_overview');
+
+            // Kirim notif subscriber jika baru dipublikasikan
             $shouldNotify = $article->status === 'published'
                 && $article->published_at?->isPast()
                 && ! $article->notified_subscribers_at;

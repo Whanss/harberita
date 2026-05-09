@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->profile(EditProfile::class)
             ->brandName('Hasberita.id')
+            ->favicon(asset('favicon.svg'))
             ->colors([
                 'primary' => Color::Red,
             ])

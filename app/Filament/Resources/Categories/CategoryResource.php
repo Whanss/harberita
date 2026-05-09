@@ -52,6 +52,10 @@ class CategoryResource extends Resource
                     ->label('Aktif')
                     ->default(true)
                     ->required(),
+                Toggle::make('show_on_homepage')
+                    ->label('Tampilkan di Beranda')
+                    ->helperText('Kategori ini akan muncul di section kategori halaman utama.')
+                    ->default(false),
             ]);
     }
 
@@ -79,6 +83,13 @@ class CategoryResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
+                IconColumn::make('show_on_homepage')
+                    ->label('Di Beranda')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-home')
+                    ->falseIcon('heroicon-o-minus')
+                    ->trueColor('info')
+                    ->falseColor('gray'),
                 TextColumn::make('articles_count')
                     ->counts('articles')
                     ->label('Artikel')
