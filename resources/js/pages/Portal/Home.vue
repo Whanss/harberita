@@ -29,23 +29,23 @@ const catColors = [
         <!-- REDESIGNED -->
 
         <!-- ── HERO SECTION ── -->
-        <div class="bg-ink-950 pb-10 pt-8">
+        <div class="bg-ink-100 pb-10 pt-8">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
                 <!-- Section label -->
                 <div class="mb-4 flex items-center gap-3">
-                    <div class="h-5 w-1 rounded-full bg-brand-500"></div>
-                    <span class="text-xs font-black uppercase tracking-widest text-ink-400">Berita Utama</span>
-                    <span class="flex items-center gap-1.5 rounded-sm bg-brand-600/20 px-2 py-0.5 text-xs font-bold text-brand-400">
-                        <span class="h-1.5 w-1.5 animate-ping rounded-full bg-brand-400"></span>
+                    <div class="h-5 w-1 rounded-full bg-brand-600"></div>
+                    <span class="text-xs font-black uppercase tracking-widest text-ink-600">Berita Utama</span>
+                    <span class="flex items-center gap-1.5 rounded-sm bg-brand-600 px-2 py-0.5 text-xs font-bold text-white">
+                        <span class="h-1.5 w-1.5 animate-ping rounded-full bg-white"></span>
                         LIVE
                     </span>
                 </div>
 
                 <!-- Empty state -->
-                <div v-if="headline.length === 0" class="flex h-64 items-center justify-center rounded-xl border border-ink-800 text-ink-600">
+                <div v-if="headline.length === 0" class="flex h-64 items-center justify-center rounded-xl border border-ink-200 bg-white text-ink-400">
                     <div class="text-center">
-                        <svg class="mx-auto mb-2 h-10 w-10 text-ink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="mx-auto mb-2 h-10 w-10 text-ink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                         </svg>
                         <p class="text-sm">Belum ada berita headline.</p>
@@ -254,16 +254,6 @@ const catColors = [
                     <!-- ── RIGHT: Sidebar ── -->
                     <aside class="space-y-6">
 
-                        <!-- Search -->
-                        <form :action="route('search.index')" method="get">
-                            <div class="flex overflow-hidden rounded-xl border border-ink-200 bg-white shadow-sm transition-all focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
-                                <input name="q" class="flex-1 bg-transparent px-4 py-2.5 text-sm focus:outline-none" placeholder="Pencarian..." />
-                                <button type="submit" class="flex items-center justify-center bg-ink-900 px-4 text-white transition-colors hover:bg-brand-600">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                                </button>
-                            </div>
-                        </form>
-
                         <!-- Berita Terkini -->
                         <div class="overflow-hidden rounded-xl border border-ink-200 bg-white shadow-sm">
                             <div class="flex items-center gap-2 border-b border-ink-100 border-l-[3px] border-l-brand-500 bg-ink-950 px-4 py-3">
@@ -319,16 +309,6 @@ const catColors = [
                                     </div>
                                 </Link>
                             </div>
-                        </div>
-
-                        <!-- Newsletter CTA inline -->
-                        <div class="rounded-xl bg-ink-950 p-5 text-center">
-                            <div class="mb-2 text-2xl">📬</div>
-                            <h4 class="mb-1 font-sans text-sm font-black text-white">Newsletter Harian</h4>
-                            <p class="mb-3 text-xs text-ink-400">Berita terpilih langsung ke inbox kamu.</p>
-                            <Link :href="route('login')" class="block w-full rounded-lg bg-brand-600 py-2 text-xs font-bold text-white transition-colors hover:bg-brand-700">
-                                Langganan Gratis
-                            </Link>
                         </div>
 
                         <!-- Kategori list -->

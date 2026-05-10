@@ -93,12 +93,9 @@ const currentYear = new Date().getFullYear();
         <div class="bg-white py-4 shadow-sm">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between gap-6">
-                    <!-- Logo premium -->
+                    <!-- Logo -->
                     <Link :href="route('home')" class="group flex-shrink-0">
                         <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 shadow-brand">
-                                <span class="font-headline text-lg font-black leading-none text-white">H</span>
-                            </div>
                             <div class="flex flex-col leading-none">
                                 <div class="flex items-baseline gap-0.5">
                                     <span class="font-headline text-2xl font-black tracking-tight text-ink-950 transition-colors group-hover:text-ink-700">HAS</span>
@@ -112,10 +109,6 @@ const currentYear = new Date().getFullYear();
 
                     <!-- Ticker inline -->
                     <div class="hidden flex-1 items-center gap-2 overflow-hidden lg:flex">
-                        <span class="flex flex-shrink-0 items-center gap-1.5 rounded-sm bg-brand-600 px-2 py-0.5">
-                            <span class="h-1.5 w-1.5 animate-ping rounded-full bg-white"></span>
-                            <span class="text-xs font-black uppercase tracking-widest text-white">Live</span>
-                        </span>
                         <div class="overflow-hidden flex-1">
                             <p class="animate-marquee whitespace-nowrap text-xs text-ink-500">
                                 Hasberita.id &nbsp;—&nbsp; Informasi Terkini, Akurat, dan Berimbang &nbsp;•&nbsp; Dapatkan berita terbaru setiap saat &nbsp;•&nbsp; Tetap update bersama Hasberita.id &nbsp;•&nbsp;

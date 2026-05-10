@@ -302,6 +302,113 @@
 }
 
 /* ============================================
+   ARTICLE SHARE BUTTON
+   ============================================ */
+.article-share-btn {
+    @apply inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-bold text-white
+           transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-95;
+}
+
+/* ============================================
+   DARK PROSE (article content on dark bg)
+   ============================================ */
+.article-prose-dark {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 1.125rem;
+    line-height: 1.9;
+    color: #d4d4d8; /* zinc-300 */
+}
+
+.article-prose-dark p {
+    margin-bottom: 1.5em;
+}
+
+.article-prose-dark h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-top: 2.2em;
+    margin-bottom: 0.7em;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    padding-bottom: 0.4em;
+    border-bottom: 1px solid #27272a;
+}
+
+.article-prose-dark h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 1.8em;
+    margin-bottom: 0.5em;
+    color: #f4f4f5;
+}
+
+.article-prose-dark a {
+    color: #f87171; /* red-400 */
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s;
+}
+
+.article-prose-dark a:hover {
+    color: #ef4444;
+}
+
+.article-prose-dark blockquote {
+    border-left: 3px solid #ef4444;
+    padding: 0.75rem 1.25rem;
+    margin: 1.75em 0;
+    font-style: italic;
+    color: #a1a1aa;
+    background: rgba(239,68,68,0.05);
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.article-prose-dark img {
+    border-radius: 0.75rem;
+    margin: 1.75em 0;
+    width: 100%;
+}
+
+.article-prose-dark ul,
+.article-prose-dark ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.4em;
+    color: #d4d4d8;
+}
+
+.article-prose-dark li {
+    margin-bottom: 0.5em;
+}
+
+.article-prose-dark strong {
+    color: #f4f4f5;
+    font-weight: 700;
+}
+
+.article-prose-dark code {
+    background: #27272a;
+    color: #f87171;
+    padding: 0.15em 0.4em;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+.article-prose-dark pre {
+    background: #18181b;
+    border: 1px solid #3f3f46;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5em 0;
+}
+
+.article-prose-dark pre code {
+    background: none;
+    color: #d4d4d8;
+    padding: 0;
+}
+
+/* ============================================
    SCROLLBAR
    ============================================ */
 ::-webkit-scrollbar {

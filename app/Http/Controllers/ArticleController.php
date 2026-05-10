@@ -45,8 +45,16 @@ class ArticleController extends Controller
         }
 
         return Inertia::render('Portal/ArticleShow', [
-            'article' => $article,
+            'article'  => $article,
             'shareUrl' => $articleUrl,
+            'related'  => Article::query()
+                ->published()
+                ->where('category_id', $article->category_id)
+                ->where('id', '!=', $article->id)
+                ->with(['category:id,name,slug', 'journalist:id,name,slug'])
+                ->latest('published_at')
+                ->limit(4)
+                ->get(['id','title','slug','featured_image','excerpt','published_at','view_count','category_id','journalist_id']),
         ]);
     }
 
